@@ -5,7 +5,9 @@ A los scripts se les proveera de la opción correspondiente para que se actualiz
 
 
 ##saltearRegistroDeClarin
-Pequeño y humilde script para evitar la ventana modal que solicita/invita al usuario a registrarse para leer el arcticulo.
+Pequeño y humilde script para evitar la ventana modal que solicita/invita al usuario a registrarse para leer el artículo en Clarin.com.
+
+Por el momento se encuentra en un estado (muy) borrador/experimental.
 
 [Leer más info](https://github.com/gcosta87/extras/tree/master/GreaseMonkeyScripts/saltearRegistroDeClarin)
 
