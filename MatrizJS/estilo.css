@@ -1,0 +1,147 @@
+*{
+	margin:0;
+	padding:0;
+	border:0;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box; 
+	color: #29AAE1;
+}
+a , a:visited, a:link{
+	color: white;
+	text-decoration:none;
+	font-weight:bold;	
+}
+
+
+body{
+	background-color:#2D3037;
+	font-family:'Open Sans',sans-serif;
+	margin:20px;
+	min-width:390px;
+	max-width:800px;
+}
+
+h1,h2,h3{
+	margin: 20px 0 10px 0; 
+}
+
+h2,h3{
+	border-bottom: 3px solid #29AAE1;
+}
+
+.container a.espaciado{
+	margin-right:25px;
+}
+
+.tablero{
+	text-align:center;
+	font-size:130%;
+	font-family:'monospace','mono','sans';
+	margin:20px auto;
+	width:510px;
+	
+}
+
+.tablero table,.tablero table.dimension3{
+	width:340px;
+	height:340px;
+}
+
+.tablero table.dimension4{
+	width:390px;
+	height:390px;
+}
+
+.tablero table.dimension5{
+	width:510px;
+	height:510px;
+}
+
+.tablero table td.data{
+	font-size:150%;
+	border:2px solid #2D3037;
+}
+
+
+.tablero table .correcto{
+	//border-bottom: none;
+	background-color: #2D3037;
+}
+
+.tablero table .proximo{
+	background-color: rgba(225,225,41,0.6);
+	color:#2D3037;
+	
+}
+
+.tablero table .incorrecto{
+	background-color: rgba(225,41,58,0.6);
+	color:white;
+}
+
+.tablero table td a{
+	font-size:150%;
+}
+
+.tablero table td.btnSuperior{
+	height:30px;
+	vertical-align:bottom;	
+}
+
+.tablero table td.btnInferior{
+	height:30px;
+	vertical-align:top;
+}
+.tablero table td.btnIzquierdo{
+	width:30px;
+	text-align:right;
+}
+
+.tablero table td.btnDerecho{
+	width:30px;
+	text-align:left;
+}
+
+.tablero table td a i{
+	color:white;
+}
+
+.tablero table td.celdaResaltada{
+	border:2px solid white;
+}
+
+.menu{
+	text-align:right;
+	font-size:125%;
+}
+
+.menu select,.menu button{
+	font-size:100%;
+	border:2px solid #29AAE1;
+	background-color:#2D3037;
+	margin-right:20px;
+}
+.menu a{
+	margin-left:20px;	
+}
+
+
+#contador{
+	font-size:200%;
+	color: yellowgreen;
+	margin:10px 20px;
+}
+
+#operaciones span{
+	border: 2px dashed #29AAE1;
+	border-radius:8px;
+	padding:7px;
+	margin:10px 15px;
+	float:left;
+	font-family:'monospace','mono','sans';
+	font-size:150%;
+}
+#operaciones br{
+	clear:both;
+}

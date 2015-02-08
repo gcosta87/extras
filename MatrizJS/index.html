@@ -1,0 +1,76 @@
+<!--
+   Matriz.JS.html
+
+   Copyright 2015 Gonzalo G. Costa <gonzalogcostaARROBAyahoo.com.ar>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+   MA 02110-1301, USA.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<title>Matriz.JS</title>
+	<meta name="generator" content="Geany 0.21" />
+	<meta name="viewport" content="width=device-width, initial-scale=0.8">
+	<script src="matriz.js"></script>
+	<script src="movimiento.js"></script>
+	<link rel="stylesheet" href="estilo.css"/>
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Matriz.JS</h1>
+		<p>Elija una cantidad de movimientos a ejecutar para que desacomoden el tablero, e intente ordenarlo alfabeticamente solamente rotando las filas o columnas. Los colores indican si está proximo a su ubicacion (amarillo) o no (rojo).</p>
+		<br/>
+		<div class="menu">
+			<form name="configuracion" onsubmit="jugar();return false;">	
+				Tamaño: 
+				<select name="dimension">
+					<option value="3" selected>3x3</option>
+					<option value="4">4x4</option>
+					<option value="5">5x5</option>
+				</select>			
+				Movimientos:
+				<select name="dificultad">
+					<option value="3"> Muy Fácil (3)</option>
+					<option value="5" selected> Fácil (5)</option>
+					<option value="8"> Normal (8)</option>
+					<option value="10"> Dificil (10)</option>
+					<option value="13"> Muy Dificil (13)</option>
+					<option value="15"> Extremo! (15)</option>
+				</select>
+
+				<button type="submit">Nuevo Juego</button>
+			</form>
+		</div>
+		<a name="tablero"></a>
+		<div class="tablero" id="tablero"></div>
+		
+		<br/>
+
+		<span id="contador">0</span>
+		<a href="#tablero" onclick="reiniciar();" class="espaciado">Reiniciar</a>
+		<a href="#tablero" onclick="regenerar();" class="espaciado">Regenerar</a>
+		<a href="#tablero" onclick="mostrarSolucion();" class="espaciado">Solución</a>
+		<br/>
+
+		<h2>Deshacer acciones</h2>
+		<div id="operaciones"><br style="clear:both;"/></div>
+	</div>
+<script src="controlador.js"></script>
+</body>
+</html>
