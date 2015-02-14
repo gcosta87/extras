@@ -1,0 +1,15 @@
+#hdrMenu {
+	position:fixed;bottom:0px;left:0px;z-index:64;width:100%;border:2px solid #888;background-color:rgba(127,127,130,0.3);color:white;padding:5px 10px; 
+}
+
+#hdrMenu span.titulo {
+	color: white; padding:0px;margin-right:20px; font-size:115%;
+}
+
+#hdrMenu span.titulo img {
+	width: auto;height: auto;margin: 0;padding: 0;
+}
+
+#hdrMenu img.servicio { 
+	margin: auto 0px;padding:10px;width:18px;
+} 
