@@ -11,6 +11,7 @@
 // resourse		fa datos/fa/css/font-awesome.min.css
 // @grant       GM_addStyle
 // @grant       GM_getResourceURL
+// @grant       GM_getResourceText
 // ==/UserScript==
 
 //	//	//	//	//	//	//	//	
@@ -94,8 +95,8 @@ function inicializar(){
 				#hdrMenu img.servicio { margin: auto 0px;padding:10px;width:18px; } ");
 	*/
 	
-	GM_addStyle(GM_getResourceURL("estilo"));
-	GM_addStyle(GM_getResourceURL("fa"));
+	GM_addStyle(GM_getResourceText("estilo"));
+	GM_addStyle(GM_getResourceText("fa"));
 	//determino el dominio
 	dominio=determinarDomino();
 	sitio={};
