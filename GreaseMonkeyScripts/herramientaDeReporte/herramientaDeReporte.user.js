@@ -7,16 +7,17 @@
 // @version		0.0.1
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
-// resourse		estilo datos/estilo.css
-// resourse		fa datos/fa/css/font-awesome.min.css
 // @grant       GM_addStyle
-// @grant       GM_getResourceURL
 // @grant       GM_getResourceText
+// @grant       GM_xmlhttpRequest
 // ==/UserScript==
 
 //	//	//	//	//	//	//	//	
 //	VARIABLES GLOBALES
 //	//	//	//	//	//	//	//	
+
+const HDR_ESTILO = 'https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/datos/estilo.css'
+const HDR_FA = 'https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'
 
 //Representacion de HdR
 var HdR = {
@@ -26,6 +27,7 @@ var HdR = {
 		//los datos de la misma.
 		entidad:{			
 			nombre:		'Una ONG',
+			//ToDo: encontrar alternativa para cargarlo evitando el problema del "SameOrigin"...
 			logo:		'http://www.ong.org/logo.png',
 			web:		'http://www.ong.org/',
 			mail:		'info@ong.org',
@@ -62,54 +64,118 @@ var HdR = {
 	
 };
 
+//ToDo: armar jerarquía de sitios web a sorpotar. Mejorar la forma de representar "Que" reportar sobre cada recurso del Usuario
+//Por ejemplo: Twitter -> Usuario y Tweet, sobre los recursos del Usurario (mail, URL..)
+var Twitter={
+	nombre: 'Twitter',
+	//logo de FontAwesome (sin 'fa-')
+	logo: 'twitter',
+	
+	urlBase: 'http://twitter.com',
+	
+	//Datos a reportar
+	reportable:  [
+		 {tipo:'Usuario', valor: ''},
+		 {tipo:'Tweet', valor: '' }
+	],
+	
+	//Procesa la página actual y carga el contexto
+	analizarContexto: function(){
+		//extraigo el usr de la URL		
+		this.reportable[0].valor=document.documentURI.match(/(twitter.com\/[^#/]+)/)[1]
+		//Si la url termina en /status/[0-9]+, es un tweet del usuario
+		this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
+		HdR.debug('Analisis de contexto realizado sobre Twitter!');
+	},
+	
+	//Codigo HTML con los botones para integrar al menu:
+	acciones: function(){
+		html='<span>';
+		for(i=0;i<this.reportable.length; i++){
+			if(this.reportable[i].valor){
+				html+='<button title="Reportar '+this.reportable[i].tipo+' vía MAIL" onclick="alert(\'Ud ha reportado: '+this.reportable[i].valor+'\nMuchas gracias!.\')"><i class="fa fa-2x fa-envelope-o" ></i></button>'
+			}
+		}
+		html+='</span>'
+		HdR.debug('Botones generados!');
+		return html;
+	}
+};
+
+//ToDo: definir para sitios en general para reportar URL actual.
+var WebGenerico={nombre: 'Sitio Web', logo:'globe', analizarContexto: function(){}, acciones: function(){}};
 
 
 //	//	//	//	//	//	//	//	
 //	FUNCIONES PRINCIPALES
 //	//	//	//	//	//	//	//	
+
+
+
 function determinarDomino(){
-	return document.domain.replace('www.','');	
+	HdR.debug('Determinación de dominio');
+	return document.domain.replace('www.','');
+}
+
+function cargarEstiloDeHdR(){
+	//Salteo posible limitacion de "SameOrigin"...
+	GM_xmlhttpRequest({
+		method: "GET",
+		url: HDR_ESTILO,
+		onload: function(response) {
+			GM_addStyle(response.responseText);
+		}
+	});
+	HdR.debug('Estilo de HdR cargado remotamente');
+}
+
+function cargarFontAwesome(){
+	fa = document.createElement('link');
+	fa.href=HDR_FA;
+	fa.rel="stylesheet";
+	
+	document.head.appendChild(fa);
+	HdR.debug('Soporte para FontAwesome cargado');
 }
 
 
 function createMenu(sitio){
 	//Defino una barra para la herramienta (#hdrMenu)
 	hdrMenu	= document.createElement('div');
-	hdrMenu.id="hdrMenu";	
-	hdrMenu.innerHTML='<span class="titulo" title="Herramienta de Reporte" ><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAPgSURBVHjaYvz//z/DQAKAAGJiGGAAEEAD7gCAABpwBwAEEFEOKCoq4gRiSVINB+rhJqQGIICIDQFQSr0LNPABEIcRabk3VI8pPnUAAUSUA/r6+n78+/cvC4ilgHhlQUFBMT71QHlvoLq1QCwOxLuAfJyOAAggRlKyYW5u7mwglQLEP4BYe/LkyfewqDEHUgeBmB1J+CMQuwPVn0RXDxBAWEMgMzMzDYgF0MX//PlzBIhBNAcQu2DRxwQUPwfE26DqYJgfiHcC5c3R9QAEEFYHABX7AHExFnF9JENVkOVSU1NBek4DsRAQhwPxOiyO8EA3EyCAcDngKsgBiYmJXjAxIDsAKJaNZOBdJDk/IH8tEBsB8V6oIyKAeA2S+o7Zs2c3otsFEEBY00BsbCwo0RwHYmYgfgTELEAshaZsNxD7A7ErEK8G4ndAPBOIa4D4JhA7QcWWAfGdxYsXV2LzLEAA4UyEERERDUCqnkC63AvEa4C4FohBaeI3EF+BJsBrUEe8WbFixV9cBgAEEN5cEBISEgT1kQ40NP5BQwMZ7AO5F4j5gXg/EMsgyZWuWbOmB58PAAKIqGwYEBDADi2MrIB4CxBzY3HEEiCeg5SuejZs2FBKyGyAAGIktTr28fFxB1JrsTjiABCvAuIpQNy7ZcuWMmLMAwggFlIsNzExCQRS04A4D4gnAjEPkrQDyENA7HjmzJlDxJoJEEBEh4CSkhLI8pWgRAVNXKJAvBWIedGUHgZiX1B6uXfv3mdC5gIEEFEOUFRUhFn+Gmr5f2jq7wfiCUDMh6XyYoRm4eVA3HD//v0f2MwGCCCCDpCXlwflhBVQyx2hwvuh5QIon5fgcAQyOAfE1g8fPsRwBEAA4a0N5eTk/IEOXAHEr4HYEeRYIN4PxFJQthAQywKxOxD/gorB8DcgvgnEv4HYCIixlikAAUSoOgYVnazQVM+C5HMY6Hj06FETkL6KlqDnArEIUE4DSKtCQyAUmwUAAYQzCmRlZaWB1GNoXCLHK9zyx48fV0LVmgCp01DxhyBLgXK/kczSBVIXQVkXKP4d2R6AAMIZAkCHeQAxI1KQIrPbYZZD1d79DwEg9lVky0EAyL8MFC9HtxwEAAIIXxR44hBvffLkSRWyAJD/Hkgdg3ItZGRkMMoXoJpubIYBBBBWBwANYIVWLgxIwToDVBACDarB4bBUIP4KxEKgGhBoBjsx5QtAALHgCH5QnJ4F4u1AvOPp06dXCBkEdNh1aWlpY2iVHAytolcT0gcQQIy06JoBHQIqonmADn9BSC1AADEOdN8QIIAGvGcEEEAD7gCAABpwBwAEGAAEsAINk1E12QAAAABJRU5ErkJggg==" alt="[HdR]"/> Web: '+sitio.nombre+'</span>\
-		<a href="#" onclick="alert(\''+HdR.mostrarInformacion()+'\');" title="Más info">Info</a>\
+	hdrMenu.id="hdrMenu";
+	hdrMenu.innerHTML='<div class="menu"><span class="titulo" title="Herramienta de Reporte" ><i class="fa fa-3x fa-gear"></i></span>\
+		<a href="#" onclick="alert(\''+HdR.mostrarInformacion()+'\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
+		<span id="estado">Estado: <i class="fa fa-2x fa-'+sitio.logo+'" title="Trabajando en '+sitio.nombre+'"></i></span>\
+		</div>\
+		<div class="acciones">'+sitio.acciones()+'</div>\
 	';
 
 	//Inserto al body
-	document.body.appendChild(hdrMenu);
-	
-	HdR.debug('Menu definido')
+	document.body.appendChild(hdrMenu);	
+	HdR.debug('Menu definido');
 }
 
 
+
+
 function inicializar(){
-	//Agrego el CSS usado [Requiere replazarse como Resourse..]
-	/*GM_addStyle("#hdrMenu { position:fixed;bottom:0px;left:0px;z-index:64;width:100%;border:2px solid #888;background-color:rgba(127,127,130,0.3);color:white;padding:5px 10px; }\
-				#hdrMenu span.titulo {color: white; padding:0px;margin-right:20px; font-size:115%;}\
-				#hdrMenu span.titulo img {width: auto;height: auto;margin: 0;padding: 0;}\
-				#hdrMenu img.servicio { margin: auto 0px;padding:10px;width:18px; } ");
-	*/
+	cargarEstiloDeHdR();
+	cargarFontAwesome();
+
 	
-	GM_addStyle(GM_getResourceText("estilo"));
-	GM_addStyle(GM_getResourceText("fa"));
 	//determino el dominio
 	dominio=determinarDomino();
 	sitio={};
 	switch(dominio){
-		case 'twitter.com':		sitio.nombre= 'Twitter';
-								HdR.debug('Corriendo en Twitter');
+		case 'twitter.com':		sitio=Twitter;
 								break;
-		
-		default:				sitio.nombre= 'Sitio Web';
+
+		default:				sitio=WebGenerico;
 								HdR.debug('Corriendo en un Sitio Web genérico');
 								break;
 	}
-	
+	//Se analiza la página actual del USR
+	sitio.analizarContexto();
 	return sitio;
 }
 
@@ -129,5 +195,5 @@ function inicializar(){
 //	//	//	//	//	//	//	//	
 
 
-sitio=	inicializar();
+sitio=inicializar();
 createMenu(sitio);
