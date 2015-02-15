@@ -4,7 +4,7 @@
 // @description	Test de prueba de una Herramienta de Reporte en la navegacion sobre los principales sitios web (Twttier, Facebook, Taringa, etc..)
 // @run-at		document-end
 // @include		https://twitter.com/*
-// @version		0.0.1
+// @version		0.0.2
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
 // @grant       GM_addStyle
@@ -83,8 +83,7 @@ var Twitter={
 	analizarContexto: function(){
 		//extraigo el usr de la URL		
 		this.reportable[0].valor=document.documentURI.match(/(twitter.com\/[^#/]+)/)[1]
-		//Si la url termina en /status/[0-9]+, es un tweet del usuario
-		this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
+		this.actualizarContexto();
 		HdR.debug('Analisis de contexto realizado sobre Twitter!');
 	},
 	
@@ -93,12 +92,17 @@ var Twitter={
 		html='<span>';
 		for(i=0;i<this.reportable.length; i++){
 			if(this.reportable[i].valor){
-				html+='<button title="Reportar '+this.reportable[i].tipo+' vía MAIL" onclick="alert(\'Ud ha reportado: '+this.reportable[i].valor+'\nMuchas gracias!.\')"><i class="fa fa-2x fa-envelope-o" ></i></button>'
+				html+='<button title="Reportar '+this.reportable[i].tipo+' vía MAIL" onclick="alert(\'Ud ha reportado:\\n'+this.reportable[i].valor+'\\n\\nMuchas gracias!.\');"><i class="fa fa-2x fa-envelope-o" ></i></button>'
 			}
 		}
 		html+='</span>'
 		HdR.debug('Botones generados!');
 		return html;
+	},
+	//Funcion que solo se dedica a actualizar lo que posiblemente varie del contexto..
+	actualizarContexto: function(){
+		//Si la url termina en /status/[0-9]+, es un tweet del usuario
+		this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
 	}
 };
 
@@ -147,7 +151,7 @@ function createMenu(sitio){
 		<a href="#" onclick="alert(\''+HdR.mostrarInformacion()+'\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
 		<span id="estado">Estado: <i class="fa fa-2x fa-'+sitio.logo+'" title="Trabajando en '+sitio.nombre+'"></i></span>\
 		</div>\
-		<div class="acciones">'+sitio.acciones()+'</div>\
+		<div id="hdrAcciones" class="acciones">'+sitio.acciones()+'</div>\
 	';
 
 	//Inserto al body
@@ -156,13 +160,10 @@ function createMenu(sitio){
 }
 
 
-
-
 function inicializar(){
 	cargarEstiloDeHdR();
 	cargarFontAwesome();
 
-	
 	//determino el dominio
 	dominio=determinarDomino();
 	sitio={};
@@ -179,8 +180,16 @@ function inicializar(){
 	return sitio;
 }
 
-
-
+//para páginas que utilizan ajax, una posible solucion es detectar cambios en el DOM
+//ToDO: mejorar la deteccion segun sitio web o eventos avanzados DOM.
+//ToDO: Definir como enganchar esta funcion desde el sitio web concreto para asi ejecutar solo cuando es necesario
+function actualizarMenu(sitio){
+	menuAcciones= document.getElementById('hdrAcciones');
+	setInterval(function(){
+		sitio.actualizarContexto();
+		menuAcciones.innerHTML=sitio.acciones();
+	},7000)
+}
 
 
 //	//	//	//	//	//	//	//	
@@ -197,3 +206,4 @@ function inicializar(){
 
 sitio=inicializar();
 createMenu(sitio);
+actualizarMenu(sitio);
