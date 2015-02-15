@@ -1,15 +1,56 @@
 #hdrMenu {
-	position:fixed;bottom:0px;left:0px;z-index:64;width:100%;border:2px solid #888;background-color:rgba(127,127,130,0.3);color:white;padding:5px 10px; 
+	position:fixed;bottom:0px;left:0px;z-index:64;width:100%;border:2px solid black;background-color:rgba(0,0,0,0.65);color:#f0f0fe;padding:5px; 
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box; 
+	min-width: 650px;
 }
 
-#hdrMenu span.titulo {
-	color: white; padding:0px;margin-right:20px; font-size:115%;
+
+#hdrMenu .menu{
+  float:left;
+ 	width: 30%;
 }
 
-#hdrMenu span.titulo img {
+#hdrMenu .menu span.titulo {
+	color: white; padding:0px;margin-right:10px; 
+}
+
+#hdrMenu .menu  span.titulo img {
 	width: auto;height: auto;margin: 0;padding: 0;
 }
 
-#hdrMenu img.servicio { 
-	margin: auto 0px;padding:10px;width:18px;
-} 
+
+#hdrMenu .menu a, #hdrMenu .menu span{
+	margin-left:10px;
+
+}
+
+#hdrMenu .acciones{
+  float:right;  
+	width:68%;	
+  text-align:right;
+}
+
+#hdrMenu .acciones button{
+  color:#f0f0fe;
+	padding:2px 5px;
+	border:2px solid #f0f0fe;
+	border-radius: 7px;
+  margin-left:5px;
+}
+
+#hdrMenu .acciones span{
+   margin-left:15px;
+}
+
+
+#hdrMenu .acciones:after{
+ content:"";
+	clear: both;
+}
+
+#hdrMenu a:visited, #hdrMenu a:link, #hdrMenu a, #hdrMenu a:hover, #hdrMenu a:focus, #hdrMenu a:active {
+  color: #f5f5f8;
+  text-decoration:none;
+}
