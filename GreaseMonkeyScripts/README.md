@@ -11,3 +11,10 @@ Por el momento se encuentra en un estado (muy) borrador/experimental.
 
 [Leer más info](https://github.com/gcosta87/extras/tree/master/GreaseMonkeyScripts/saltearRegistroDeClarin)
 
+##herramientaDeReporte
+Pequeña script que agrega una barra horizontal en la parte inferior de la ventana, que posibilita dada una configuracion de una Entidad (ONG/Fundacion/..) reportar determinados contentidos en la Web, desde la URL hasta en algunos casos datos específicos como Usuarios o contenido (Posteos, Tweets,..).
+
+Por el momento se encuentra en un estado (muy) borrador/experimental.
+
+[Leer más info](https://github.com/gcosta87/extras/tree/master/GreaseMonkeyScripts/herramientaDeReporte)
+
