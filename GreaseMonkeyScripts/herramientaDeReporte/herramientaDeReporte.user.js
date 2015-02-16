@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		Herramienta de Reporte (HdR) [versión alpha]
-// @namespace	http://www.libreware.com.ar
+// @namespace	http://www.libreware.com.ar/HdR
 // @description	Test de prueba de una Herramienta de Reporte en la navegacion sobre los principales sitios web (Twttier, Facebook, Taringa, etc..)
 // @run-at		document-end
 // @include		https://twitter.com/*
@@ -15,9 +15,10 @@
 //	//	//	//	//	//	//	//	
 //	VARIABLES GLOBALES
 //	//	//	//	//	//	//	//	
+//Estilo y FontAwesome
+const HDR_ESTILO	= 'https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/datos/estilo.css';
+const HDR_FA 		= 'https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'
 
-const HDR_ESTILO = 'https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/datos/estilo.css'
-const HDR_FA = 'https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'
 
 //Representacion de HdR
 var HdR = {
@@ -35,18 +36,40 @@ var HdR = {
 		},
 		//Recursos: mécanismos para notificar (enviar un Mail, URL de Servidor con url reportada, un twitt ..)
 		// Es un arreglo especificando con un obj el tipo (mail|url|twitter) y la data asociada
-		recursos:[
-			{tipo:	'mail',valor:	'reporte@ong.org'}
-			//{tipo: 'url', valor: 'http://ong.org/reporte?origen=HdR&url='}
-			//{tipo: 'twitter', valor: 'usuarioDeTwitter'}
-		]
+		recursos:{
+			mail:	'reporte@ong.org',
+			url:	'http://www.ong.org/reporteDeContenido?origen=HdR&url=',
+			twitter:'@ONG'
+		}
 	},
-	
-	//ToDo: Mas cosas que faltarian definir
-	
-	//Ruta absoluta al directorio «/datos» (iconos, extras..). El usuario podría cambiarlo para uno propio
-	datos: 'http://extras.libreware.com.ar/HdR/datos',
 
+	//Referencia al elemento (dom) que contiene las acciones;
+	menuAcciones: null,
+
+	//Retorna el HTML de un boton segun el tipo de recurso de la Entidad para un Objeto reportable {tipo,valor}
+	botonesHTML:{
+		'mail':		function(objetoReportable){ return '<a title="Reportar '+objetoReportable.tipo+' vía correo electrónico" onclick="return confirm(\'Ud va a reportar al mail '+HdR.reporte.recursos.mail+' :\\n'+objetoReportable.valor+'\\n\\n¿Está seguro que desea hacerlo?.\');" href="mailto:'+HdR.reporte.recursos.mail+'?subject=Reporte de HdR&body=Se reporta la siguiente URL:%0A'+encodeURI(objetoReportable.valor)+'"><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-envelope-o fa-stack-1x"></i></span></a>'; },
+		'url':		function(objetoReportable){ urlFinal=HdR.reporte.recursos.url+encodeURI(objetoReportable.valor); return '<a title="Reportar '+objetoReportable.tipo+' vía URL específica" onclick="return confirm(\'Ud reportará a un servidor específico (URL):\\n'+urlFinal+'\\n\\n¿Está seguro que desea hacerlo?.\');" href="'+urlFinal+'" target="_blank"><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-link fa-stack-1x"></i></span></i></a>'; },
+		'twitter':	function(objetoReportable){ tweet=encodeURI(HdR.reporte.recursos.twitter+' Reporte vía HdR de '+objetoReportable.tipo+':'); return '<a title="Reportar '+objetoReportable.tipo+' vía Twitter" onclick="return confirm(\'Ud creara un tweet a la cuenta oficial de la entidad ('+HdR.reporte.recursos.twitter+') para reportar:\\n'+objetoReportable.valor+'\\n\\n¿Está seguro que desea hacerlo?.\');" href="https://twitter.com/intent/tweet?text='+tweet+'&url='+encodeURI(objetoReportable.valor)+'" target="_blank"><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-twitter fa-stack-1x"></i></span></a>'; }
+	},
+
+	// Genera las acciones posible segun los recursos de la Entidad y los elementos reportables del Sitio
+	generarBotonesDeAcciones: function(sitio){
+		recursosKeys=Object.keys(this.reporte.recursos);
+		html=''
+		for(i=0;i<(recursosKeys.length);i++){
+			recurso=recursosKeys[i];			
+			html+='<span class="grupoDeAcciones">';
+			for(j=0;j<(sitio.reportable.length); j++){				
+				if(sitio.reportable[j].valor){
+					html+=this.botonesHTML[recurso](sitio.reportable[j]);
+				}
+			}
+			html+='</span>'	
+		}		
+		this.menuAcciones.innerHTML=html;
+		this.debug('Botones generados!');
+	},
 
 	mostrarInformacion: function() {
 		return 'HdR está corriendo con la siguiente configuracion:\\n\\tEntidad: '+this.reporte.entidad.nombre+'\\n\\tWeb: '+this.reporte.entidad.web+'\\n\\tMail: '+this.reporte.entidad.mail+'\\n\\tFacebook: '+this.reporte.entidad.facebook;
@@ -65,50 +88,59 @@ var HdR = {
 };
 
 //ToDo: armar jerarquía de sitios web a sorpotar. Mejorar la forma de representar "Que" reportar sobre cada recurso del Usuario
-//Por ejemplo: Twitter -> Usuario y Tweet, sobre los recursos del Usurario (mail, URL..)
-var Twitter={
-	nombre: 'Twitter',
-	//logo de FontAwesome (sin 'fa-')
-	logo: 'twitter',
+//	CLASE ABSTRACTA
+//
+function Sitio(nombre, logoFA, elementosReportables){
+	//atributos
+	this.nombre= nombre;
+	this.logo=	logoFA;
+	this.reportable= elementosReportables;
 	
-	urlBase: 'http://twitter.com',
-	
-	//Datos a reportar
-	reportable:  [
-		 {tipo:'Usuario', valor: ''},
-		 {tipo:'Tweet', valor: '' }
-	],
-	
-	//Procesa la página actual y carga el contexto
-	analizarContexto: function(){
-		//extraigo el usr de la URL		
-		this.reportable[0].valor=document.documentURI.match(/(twitter.com\/[^#/]+)/)[1]
-		this.actualizarContexto();
-		HdR.debug('Analisis de contexto realizado sobre Twitter!');
-	},
-	
-	//Codigo HTML con los botones para integrar al menu:
-	acciones: function(){
-		html='<span>';
-		for(i=0;i<this.reportable.length; i++){
-			if(this.reportable[i].valor){
-				html+='<button title="Reportar '+this.reportable[i].tipo+' vía MAIL" onclick="alert(\'Ud ha reportado:\\n'+this.reportable[i].valor+'\\n\\nMuchas gracias!.\');"><i class="fa fa-2x fa-envelope-o" ></i></button>'
-			}
-		}
-		html+='</span>'
-		HdR.debug('Botones generados!');
-		return html;
-	},
-	//Funcion que solo se dedica a actualizar lo que posiblemente varie del contexto..
-	actualizarContexto: function(){
-		//Si la url termina en /status/[0-9]+, es un tweet del usuario
-		this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
-	}
+	//Al crear llevo a cabo el analisis de la página
+	this.analizarContexto();
 };
 
-//ToDo: definir para sitios en general para reportar URL actual.
-var WebGenerico={nombre: 'Sitio Web', logo:'globe', analizarContexto: function(){}, acciones: function(){}};
+Sitio.prototype.analizarContexto=	function(){console.log('Implementar #analizarContexto en hijo de Sitio!')};
+Sitio.prototype.actualizarContexto=	function(){console.log('Implementar #actualizarContexto en hijo de Sitio!')};
+//	CLASES CONCRETAS DE SITIOS (HIJOS)
+//
+function Twitter(){
+	Sitio.call(this, 'Twitter', 'twitter',[{tipo:'Usuario', valor: ''},{tipo:'Tweet', valor: '' }]);
+}
+Twitter.prototype=Object.create(Sitio.prototype);
+Twitter.prototype.constructor=Twitter;
 
+
+Twitter.prototype.analizarContexto=function(){
+	//extraigo el usr de la URL		
+	this.reportable[0].valor=document.documentURI.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
+	this.actualizarContexto();
+	HdR.debug('Analisis de contexto realizado sobre Twitter!');
+}
+	
+//Funcion que solo se dedica a actualizar lo que posiblemente varie del contexto..
+Twitter.prototype.actualizarContexto= function(){
+	//Si la url termina en /status/[0-9]+, es un tweet del usuario
+	this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
+}
+
+
+// Sitios web comunes o no "especificados" se podrá reportar la URL actual.
+function WebGenerico(){
+	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'url', valor:''}] );
+}
+
+WebGenerico.prototype=Object.create(Sitio.prototype);
+WebGenerico.prototype.constructor=WebGenerico;
+
+WebGenerico.prototype.analizarContexto=function(){
+	this.reportable[0].valor=document.documentURI;
+};
+/*
+WebGenerico.prototype.actualizarContexto=function(){
+	
+};
+*/
 
 //	//	//	//	//	//	//	//	
 //	FUNCIONES PRINCIPALES
@@ -150,9 +182,14 @@ function createMenu(sitio){
 	hdrMenu.innerHTML='<div class="menu"><span class="titulo" title="Herramienta de Reporte" ><i class="fa fa-3x fa-gear"></i></span>\
 		<a href="#" onclick="alert(\''+HdR.mostrarInformacion()+'\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
 		<span id="estado">Estado: <i class="fa fa-2x fa-'+sitio.logo+'" title="Trabajando en '+sitio.nombre+'"></i></span>\
-		</div>\
-		<div id="hdrAcciones" class="acciones">'+sitio.acciones()+'</div>\
-	';
+		</div>';
+		
+	menuAcciones=document.createElement('div');
+	menuAcciones.id='hdrAcciones';
+	menuAcciones.className='acciones';
+	
+	hdrMenu.appendChild(menuAcciones);	
+	HdR.menuAcciones=menuAcciones;
 
 	//Inserto al body
 	document.body.appendChild(hdrMenu);	
@@ -168,27 +205,22 @@ function inicializar(){
 	dominio=determinarDomino();
 	sitio={};
 	switch(dominio){
-		case 'twitter.com':		sitio=Twitter;
+		case 'twitter.com':		sitio=new Twitter();
 								break;
 
-		default:				sitio=WebGenerico;
-								HdR.debug('Corriendo en un Sitio Web genérico');
+		default:				sitio=new WebGenerico();
 								break;
 	}
-	//Se analiza la página actual del USR
-	sitio.analizarContexto();
 	return sitio;
 }
 
 //para páginas que utilizan ajax, una posible solucion es detectar cambios en el DOM
 //ToDO: mejorar la deteccion segun sitio web o eventos avanzados DOM.
-//ToDO: Definir como enganchar esta funcion desde el sitio web concreto para asi ejecutar solo cuando es necesario
 function actualizarMenu(sitio){
-	menuAcciones= document.getElementById('hdrAcciones');
 	setInterval(function(){
 		sitio.actualizarContexto();
-		menuAcciones.innerHTML=sitio.acciones();
-	},7000)
+		HdR.generarBotonesDeAcciones(sitio);
+	},7000);
 }
 
 
@@ -206,4 +238,6 @@ function actualizarMenu(sitio){
 
 sitio=inicializar();
 createMenu(sitio);
+HdR.generarBotonesDeAcciones(sitio);
 actualizarMenu(sitio);
+
