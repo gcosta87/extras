@@ -32,16 +32,9 @@
   text-align:right;
 }
 
-#hdrMenu .acciones button{
-  color:#f0f0fe;
-	padding:2px 5px;
-	border:2px solid #f0f0fe;
-	border-radius: 7px;
-  margin-left:5px;
-}
 
-#hdrMenu .acciones span{
-   margin-left:15px;
+#hdrMenu .acciones span.grupoDeAcciones{
+   margin-left:10px;
 }
 
 
