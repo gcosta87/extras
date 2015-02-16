@@ -3,12 +3,24 @@
 ## Intro
 El HdR es un pequeño script, que se encuentra en un estado muy inmaduro de desarrallo (*borrador*),el cual está pensado para ayudar a una entidad (ONG/Fundacion/Grupo de Usuarios..) recibir reportes de contenidos en la web. La idea es que al visitar determinados sitios web, se agregue al mismo una barra en la parte inferior de la ventana del navegador, que permita reportar contenidos web como: la URL actual hasta Usuarios y/o publicaciones (Tweets, posteos,etc..).
 
-Para lograr esto se tiene pensado implementar para los principales sitios webs (como son las redes sociales) pequeñas "funcionalidades" que posibiliten identificacion del usuario y/o contenidos como se mencionó antes. Por el momento solo se esta haciendo una prueba sobre Twitter, para reportar Usuarios y Tweets. De esta forma se evalua *cuanto procesamiento* (de informacion y/o webs) soporta este script, dado que se utiliza JavaScript a través de un "pluggin".
+Para lograr esto se tiene pensado implementar para los principales sitios webs (como son las redes sociales) pequeñas "funcionalidades" que posibiliten identificacion del usuario y/o contenidos como se mencionó antes. Por el momento solo se esta haciendo una prueba sobre Twitter, para reportar Usuarios y Tweets. De esta forma se evalua *cuanto procesamiento* (de informacion y/o webs) soporta este script, dado que se utiliza JavaScript a través de un "plugin".
 
 Las formas de reportar dichos contenidos se pretenden que sean variadas como vía: Mail, Twitter, una URL especifica (util para que la entidad implemente una solucion práctica) o incluso otras formas relacionadas con la web.
 
 ## Características principales
-  (falta definir)
+
+  [![Prueba de HdR en Twitter][1]][2]
+ [1]: http://img.youtube.com/vi/M1Ww9CNQRqo/0.jpg "Prueba de HdR en Twitter"
+ [2]: http://www.youtube.com/watch?v=M1Ww9CNQRqo
+  
+  
+  - Sencilla: la herramienta siempre será sencilla para el usuario (y rudimentaria) por la tecnologia usada (JavaScript vía un plugin).
+  - Es simple de configurar: se definen las vías de contacto de la entidad (HdR)y sitios sobre los cuales se desea utilizar (GreseMonkey).
+  - Facil instalación.
+  - No requiere de nigún servidor para realizar los reportes.
+  - Aún se encuentra en estado (muy) inmaduro de desarrollo y (sinceramente) se evaluando sus capacidades.
+
+
 
 
 
