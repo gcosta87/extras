@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        saltearRegistroDeClarin (Gigya) [versión alpha]
-// @namespace   http://www.libreware.com.ar
+// @namespace   http://www.libreware.com.ar/saltearRegistroDeClarin
 // @description Evita la aparición de la venta modal que solicita el registro para la lectura de los articulos (provisto por el SaaS Gigya)
 // @run-at    document-end
 // @require    https://gist.githubusercontent.com/BrockA/2620135/raw/83e1e5e36f130fa4e0cc2127175e293a90674d85/checkForBadJavascripts.js
