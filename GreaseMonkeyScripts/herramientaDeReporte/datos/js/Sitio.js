@@ -75,9 +75,25 @@ Twitter.prototype.actualizarContexto= function(){
 
 
 
+function YouTube(){
+	Sitio.call(this, 'YouTube', 'youtube',[{tipo:'Usuario', valor: ''},{tipo:'Video', valor: '' }]);
+}
+
+YouTube.prototype=Object.create(Sitio.prototype);
+YouTube.prototype.constructor=YouTube;
+
+YouTube.prototype.analizarContexto=function(){
+	//Extraigo el ID del Channel para evitar cambios de nombre y que afecten futura lectura del reporte.
+	this.reportable[0].valor='https://www.youtube.com/channel/'+document.querySelector("meta[itemprop='channelId']").content;
+	videoId=document.documentURI.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i)[1];
+	this.reportable[1].valor=(videoId)? 'https://www.youtube.com/watch?'+videoId : '';
+	HdR.debug('Analisis de contexto realizado sobre YouTube!');
+}
+
+
 // Sitios web comunes o no "especificados" se podrá reportar la URL actual.
 function WebGenerico(){
-	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'url', valor:''}] );
+	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'Url', valor:''}] );
 }
 
 WebGenerico.prototype=Object.create(Sitio.prototype);
@@ -86,8 +102,3 @@ WebGenerico.prototype.constructor=WebGenerico;
 WebGenerico.prototype.analizarContexto=function(){
 	this.reportable[0].valor=document.documentURI;
 };
-/*
-WebGenerico.prototype.actualizarContexto=function(){
-	
-};
-*/

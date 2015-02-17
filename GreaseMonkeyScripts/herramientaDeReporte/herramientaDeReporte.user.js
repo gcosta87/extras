@@ -25,10 +25,11 @@
 // @description	Test de prueba de una Herramienta de Reporte en la navegacion sobre los principales sitios web (Twttier, Facebook, Taringa, etc..)
 // @run-at		document-end
 // @include		https://twitter.com/*
-// @version		0.0.5
+// @include		https://www.youtube.com*
+// @version		0.0.6
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
-// @require		datos/js/Sitio.js#16.02.2015
+// @require		datos/js/Sitio.js#17.02.2015
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
 // @resource	CSS_HDR			datos/estilo.css#16.02.2015
 // @grant       GM_addStyle
@@ -56,6 +57,7 @@ var HdR = {
 	menuAcciones: null,
 
 	inicializar: function(){
+		this.debug('Inicializando la herramienta...');
 		GM_addStyle(GM_getResourceText('CSS_HDR'));
 		inyectarCSS('FontAwesome',CSS_FA);
 			
@@ -73,7 +75,7 @@ var HdR = {
 		
 		hdrMenu.innerHTML='<div class="menu"><span class="titulo" title="Herramienta de Reporte" ><i class="fa fa-3x fa-gear"></i></span>\
 			<a nohref class="pseudoLink" onclick="alert(\''+this.mostrarInformacion()+'\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
-			<span id="estado">Estado: <i class="fa fa-2x fa-'+this.sitio.logo+'" title="Trabajando en '+this.sitio.nombre+'"></i></span>\
+			<span id="estado" title="Trabajando en '+this.sitio.nombre+'">Estado: <i class="fa fa-2x fa-'+this.sitio.logo+'"></i></span>\
 			</div>';
 		
 		//Defino el area de los botones de accion..	
@@ -148,6 +150,8 @@ function determinarSitio(){
 	sitio=null;
 	switch(dominio){
 		case 'twitter.com':		sitio= new Twitter();
+								break;
+		case 'youtube.com':		sitio= new YouTube();
 								break;
 		default:				sitio= new WebGenerico();
 								break;
