@@ -40,7 +40,7 @@ function Sitio(nombre, logoFA, elementosReportables){
 
 Sitio.prototype.analizarContexto=	function(){console.log('Implementar #analizarContexto en hijo de Sitio!')};
 Sitio.prototype.actualizarContexto=	function(){console.log('Implementar #actualizarContexto en hijo de Sitio!')};
-//ToDo: Reemplazar actualizaciones periodicas por deteccion de eventos en DOM
+//ToDo: Reemplazar actualizaciones periodicas por deteccion de eventos en DOM ante llamadas AJAX!!!
 Sitio.prototype.actualizarContextoAnteCambios=function(){
 	setInterval(function(){
 		HdR.sitio.actualizarContexto();
@@ -76,17 +76,35 @@ Twitter.prototype.actualizarContexto= function(){
 
 
 function YouTube(){
-	Sitio.call(this, 'YouTube', 'youtube',[{tipo:'Usuario', valor: ''},{tipo:'Video', valor: '' }]);
+	Sitio.call(this, 'YouTube', 'youtube',[{tipo:'Usuario', valor: null},{tipo:'Video', valor: null }]);
 }
 
 YouTube.prototype=Object.create(Sitio.prototype);
 YouTube.prototype.constructor=YouTube;
 
+
+
 YouTube.prototype.analizarContexto=function(){
+	this.actualizarContextoAnteCambios();
+}
+YouTube.prototype.actualizarContexto=function(){
 	//Extraigo el ID del Channel para evitar cambios de nombre y que afecten futura lectura del reporte.
-	this.reportable[0].valor='https://www.youtube.com/channel/'+document.querySelector("meta[itemprop='channelId']").content;
-	videoId=document.documentURI.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i)[1];
-	this.reportable[1].valor=(videoId)? 'https://www.youtube.com/watch?'+videoId : '';
+	
+	
+	//canal=document.querySelector("meta[itemprop='channelId']")  Descartado porque no se actualiza vía AJAX, dando falso positivo!!!
+	canal=document.querySelector('div.yt-user-info a');
+	if(canal){
+		//~ this.reportable[0].valor='https://www.youtube.com/channel/'+canal.content;	
+		this.reportable[0].valor=canal.href;	
+	}
+	else{
+		//Si no se pudo extraer analizo la URL (ya que posiblemente este viendo su pagina de USR)
+		canal=document.documentURI.match(/https?:\/\/www.youtube.com\/(user|channel)\/[^\/#]+/i)
+		this.reportable[0].valor= (canal)? canal[0]:'';
+	}
+	
+	erVideoId=document.documentURI.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i);
+	this.reportable[1].valor=(erVideoId)? 'https://www.youtube.com/watch?'+erVideoId[1] : '';
 	HdR.debug('Analisis de contexto realizado sobre YouTube!');
 }
 

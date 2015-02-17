@@ -25,13 +25,13 @@
 // @description	Test de prueba de una Herramienta de Reporte en la navegacion sobre los principales sitios web (Twttier, Facebook, Taringa, etc..)
 // @run-at		document-end
 // @include		https://twitter.com/*
-// @include		https://www.youtube.com*
-// @version		0.0.6
+// @include		https://www.youtube.com/*
+// @version		0.2.6
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
 // @require		datos/js/Sitio.js#17.02.2015
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
-// @resource	CSS_HDR			datos/estilo.css#16.02.2015
+// @resource	CSS_HDR			datos/estilo.css#17.02.2015
 // @grant       GM_addStyle
 // @grant       GM_getResourceText
 // @grant       GM_xmlhttpRequest
