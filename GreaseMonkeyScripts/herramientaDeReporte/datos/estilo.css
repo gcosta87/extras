@@ -16,14 +16,12 @@
 	color: white; padding:0px;margin-right:10px; 
 }
 
-#hdrMenu .menu  span.titulo img {
-	width: auto;height: auto;margin: 0;padding: 0;
-}
-
-
 #hdrMenu .menu a, #hdrMenu .menu span{
 	margin-left:10px;
+}
 
+#hdrMenu a.pseudoLink {
+	cursor:pointer;
 }
 
 #hdrMenu .acciones{
