@@ -40,6 +40,13 @@ function Sitio(nombre, logoFA, elementosReportables){
 
 Sitio.prototype.analizarContexto=	function(){console.log('Implementar #analizarContexto en hijo de Sitio!')};
 Sitio.prototype.actualizarContexto=	function(){console.log('Implementar #actualizarContexto en hijo de Sitio!')};
+//ToDo: Reemplazar actualizaciones periodicas por deteccion de eventos en DOM
+Sitio.prototype.actualizarContextoAnteCambios=function(){
+	setInterval(function(){
+		HdR.sitio.actualizarContexto();
+		HdR.generarBotonesDeAcciones();
+	},7000);
+};
 
 //
 //	CLASES CONCRETAS DE SITIOS (HIJOS)
@@ -55,6 +62,8 @@ Twitter.prototype.analizarContexto=function(){
 	//extraigo el usr de la URL		
 	this.reportable[0].valor=document.documentURI.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
 	this.actualizarContexto();
+	//ToDo: Mejorar la forma de llamar a esta funcion. Con TemplateMethod..?
+	this.actualizarContextoAnteCambios();
 	HdR.debug('Analisis de contexto realizado sobre Twitter!');
 }
 	
