@@ -58,11 +58,30 @@ Sitio.prototype.actualizarContextoAnteCambios=function(){
 	},1000);
 };
 
+//	Funciones comunes útiles a todos los sitios..
+
+//Setea al reportable la url si esta coincide, sino lo seta null.
+Sitio.prototype.setearReportableConURLMatcheada=function(indiceReportable,regex){
+	this.reportable[indiceReportable].valor= (this.urlActual.match(regex))? this.urlActual : null;
+}
+
+//Similar al anterior, pero se indica un grupo de captura (numero).
+Sitio.prototype.setearReportableConURLMatcheadaConGP=function(indiceReportable,regex,grupoDeCaptura){
+	arrayER=this.urlActual.match(regex);
+	this.reportable[indiceReportable].valor=(arrayER)? arrayER[grupoDeCaptura]:null;
+}
+
+//Retorna true si existe al menos 1 dato a reportar
+Sitio.prototype.hayReportables=function(){
+	return this.reportable.some(function(r){return r.valor});
+}
+
+
 //
 //	CLASES CONCRETAS DE SITIOS (HIJOS)
 //
 function Twitter(){
-	Sitio.call(this, 'Twitter', 'twitter',[{tipo:'Usuario', valor: ''},{tipo:'Tweet', valor: '' }]);
+	Sitio.call(this, 'Twitter', 'twitter',[{tipo:'Usuario', valor: null},{tipo:'Tweet', valor: null }]);
 }
 Twitter.prototype=Object.create(Sitio.prototype);
 Twitter.prototype.constructor=Twitter;
@@ -70,8 +89,8 @@ Twitter.prototype.constructor=Twitter;
 
 Twitter.prototype.analizarContexto=function(){
 	//extraigo el usr de la URL		
-	//~ this.reportable[0].valor=document.documentURI.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
-	this.reportable[0].valor=this.urlActual.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
+	erUsuario=this.urlActual.match(/(https?:\/\/twitter.com\/[^#/]+)/);
+	this.reportable[0].valor=(erUsuario)? erUsuario[1]:null;
 	this.actualizarContexto();
 	//ToDo: Mejorar la forma de llamar a esta funcion. Con TemplateMethod..?
 	this.actualizarContextoAnteCambios();
@@ -81,8 +100,7 @@ Twitter.prototype.analizarContexto=function(){
 //Funcion que solo se dedica a actualizar lo que posiblemente varie del contexto..
 Twitter.prototype.actualizarContexto= function(){
 	//Si la url termina en /status/[0-9]+, es un tweet del usuario
-	//~ this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
-	this.reportable[1].valor= (this.urlActual.match(/status\/[0-9]+$/))? this.urlActual : '';
+	this.reportable[1].valor= (this.urlActual.match(/status\/[0-9]+$/))? this.urlActual : null;
 }
 
 
@@ -102,8 +120,7 @@ YouTube.prototype.analizarContexto=function(){
 }
 YouTube.prototype.actualizarContexto=function(){
 	//Extraigo el ID del Channel para evitar cambios de nombre y que afecten futura lectura del reporte.
-	
-	
+
 	//canal=document.querySelector("meta[itemprop='channelId']")  Descartado porque no se actualiza vía AJAX, dando falso positivo!!!
 	canal=document.querySelector('div.yt-user-info a');
 	if(canal){
@@ -112,24 +129,64 @@ YouTube.prototype.actualizarContexto=function(){
 	}
 	else{
 		//Si no se pudo extraer analizo la URL (ya que posiblemente este viendo su pagina de USR)
-		canal=document.documentURI.match(/https?:\/\/www.youtube.com\/(user|channel)\/[^\/#]+/i)
-		this.reportable[0].valor= (canal)? canal[0]:'';
+		canal=this.urlActual.match(/https?:\/\/www.youtube.com\/(user|channel)\/[^\/#]+/i)
+		this.reportable[0].valor= (canal)? canal[0]: null;
 	}
 	
-	erVideoId=document.documentURI.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i);
-	this.reportable[1].valor=(erVideoId)? 'https://www.youtube.com/watch?'+erVideoId[1] : '';
+	erVideoId=this.urlActual.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i);
+	this.reportable[1].valor=(erVideoId)? 'https://www.youtube.com/watch?'+erVideoId[1] : null;
 	HdR.debug('Analisis de contexto realizado sobre YouTube!');
 }
 
 
+
+
+function GooglePlus(){
+	Sitio.call(this,'Google+','google-plus',[{tipo:'Usuario', valor:null},{tipo:'Publicación', valor:null},{tipo:'Album', valor:null},{tipo:'Foto', valor:null}]);
+}
+
+GooglePlus.prototype=Object.create(Sitio.prototype);
+GooglePlus.prototype.constructor=GooglePlus;
+
+GooglePlus.prototype.analizarContexto=function(){
+	this.actualizarContexto();
+	this.actualizarContextoAnteCambios();
+}
+
+GooglePlus.prototype.actualizarContexto=function(){
+	//Obtengo el posible Album
+	this.setearReportableConURLMatcheadaConGP(2,'(https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+)',1);
+	
+	//Si el USR esta viendo un album, la ID del usr se puede obtener de la url..
+	if(this.reportable[2].valor){
+		//ToDo: testar bn para evitar error de Null al acceder al Arreglo de Grupos de captura.
+		this.reportable[0].valor= 'https?://plus.google.com/' + this.urlActual.match('https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+')[1];
+	}
+	else{
+		//Saco el ID del usuario o bien su nombre de la URL
+		this.setearReportableConURLMatcheadaConGP(0,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+))',1);
+	}
+
+	//Saco una publicacion de la URL actual
+	this.setearReportableConURLMatcheadaConGP(1,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/posts/[^/?#]+)',1);
+
+	//Foto la obtengo la URL, aunque se deberia extraer de otra forma mas efectiva...
+	this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/photos/photo/.+)',1);
+	
+	
+}
+
+
+
+
 // Sitios web comunes o no "especificados" se podrá reportar la URL actual.
 function WebGenerico(){
-	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'Url', valor:''}] );
+	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'Url', valor:null}] );
 }
 
 WebGenerico.prototype=Object.create(Sitio.prototype);
 WebGenerico.prototype.constructor=WebGenerico;
 
 WebGenerico.prototype.analizarContexto=function(){
-	this.reportable[0].valor=document.documentURI;
+	this.reportable[0].valor=this.urlActual;
 };
