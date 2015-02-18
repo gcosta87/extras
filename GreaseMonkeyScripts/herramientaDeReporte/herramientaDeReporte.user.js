@@ -26,7 +26,7 @@
 // @run-at		document-end
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
-// @version		0.2.6
+// @version		0.2.7
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
 // @require		datos/js/Sitio.js#17.02.2015

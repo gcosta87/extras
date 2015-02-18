@@ -33,6 +33,7 @@ function Sitio(nombre, logoFA, elementosReportables){
 	this.nombre= nombre;
 	this.logo=	logoFA;
 	this.reportable= elementosReportables;
+	this.urlActual=document.documentURI;
 	
 	//Al crear llevo a cabo el analisis de la página
 	this.analizarContexto();
@@ -43,9 +44,18 @@ Sitio.prototype.actualizarContexto=	function(){console.log('Implementar #actuali
 //ToDo: Reemplazar actualizaciones periodicas por deteccion de eventos en DOM ante llamadas AJAX!!!
 Sitio.prototype.actualizarContextoAnteCambios=function(){
 	setInterval(function(){
-		HdR.sitio.actualizarContexto();
-		HdR.generarBotonesDeAcciones();
-	},7000);
+		if(HdR.sitio.urlActual  != document.documentURI){
+			HdR.debug('Cambios en el contexto detectados: modificacion de URL.');
+			HdR.sitio.urlActual=document.documentURI;
+			
+			HdR.menuAcciones.innerHTML='<span><i class="fa fa-2x fa-refresh fa-spin"></i> Analizando cambios.</span>';
+			
+			setTimeout(function(){
+				HdR.sitio.actualizarContexto();
+				HdR.generarBotonesDeAcciones();
+			},5000);
+		}
+	},1000);
 };
 
 //
@@ -60,7 +70,8 @@ Twitter.prototype.constructor=Twitter;
 
 Twitter.prototype.analizarContexto=function(){
 	//extraigo el usr de la URL		
-	this.reportable[0].valor=document.documentURI.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
+	//~ this.reportable[0].valor=document.documentURI.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
+	this.reportable[0].valor=this.urlActual.match(/(https?:\/\/twitter.com\/[^#/]+)/)[1]
 	this.actualizarContexto();
 	//ToDo: Mejorar la forma de llamar a esta funcion. Con TemplateMethod..?
 	this.actualizarContextoAnteCambios();
@@ -70,7 +81,8 @@ Twitter.prototype.analizarContexto=function(){
 //Funcion que solo se dedica a actualizar lo que posiblemente varie del contexto..
 Twitter.prototype.actualizarContexto= function(){
 	//Si la url termina en /status/[0-9]+, es un tweet del usuario
-	this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
+	//~ this.reportable[1].valor= (document.documentURI.match(/status\/[0-9]+$/))? document.documentURI : '';
+	this.reportable[1].valor= (this.urlActual.match(/status\/[0-9]+$/))? this.urlActual : '';
 }
 
 
@@ -85,6 +97,7 @@ YouTube.prototype.constructor=YouTube;
 
 
 YouTube.prototype.analizarContexto=function(){
+	this.actualizarContexto();
 	this.actualizarContextoAnteCambios();
 }
 YouTube.prototype.actualizarContexto=function(){
