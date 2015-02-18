@@ -89,10 +89,9 @@ Twitter.prototype.constructor=Twitter;
 
 Twitter.prototype.analizarContexto=function(){
 	//extraigo el usr de la URL		
-	erUsuario=this.urlActual.match(/(https?:\/\/twitter.com\/[^#/]+)/);
-	this.reportable[0].valor=(erUsuario)? erUsuario[1]:null;
+	this.setearReportableConURLMatcheadaConGP(0,/(https?:\/\/twitter.com\/[^#/]+)/,1);
+
 	this.actualizarContexto();
-	//ToDo: Mejorar la forma de llamar a esta funcion. Con TemplateMethod..?
 	this.actualizarContextoAnteCambios();
 	HdR.debug('Analisis de contexto realizado sobre Twitter!');
 }
@@ -100,7 +99,7 @@ Twitter.prototype.analizarContexto=function(){
 //Funcion que solo se dedica a actualizar lo que posiblemente varie del contexto..
 Twitter.prototype.actualizarContexto= function(){
 	//Si la url termina en /status/[0-9]+, es un tweet del usuario
-	this.reportable[1].valor= (this.urlActual.match(/status\/[0-9]+$/))? this.urlActual : null;
+	this.setearReportableConURLMatcheada(1,/status\/[0-9]+$/);
 }
 
 
@@ -121,20 +120,18 @@ YouTube.prototype.analizarContexto=function(){
 YouTube.prototype.actualizarContexto=function(){
 	//Extraigo el ID del Channel para evitar cambios de nombre y que afecten futura lectura del reporte.
 
-	//canal=document.querySelector("meta[itemprop='channelId']")  Descartado porque no se actualiza vía AJAX, dando falso positivo!!!
 	canal=document.querySelector('div.yt-user-info a');
 	if(canal){
-		//~ this.reportable[0].valor='https://www.youtube.com/channel/'+canal.content;	
-		this.reportable[0].valor=canal.href;	
+		this.reportable[0].valor=canal.href;
 	}
 	else{
 		//Si no se pudo extraer analizo la URL (ya que posiblemente este viendo su pagina de USR)
-		canal=this.urlActual.match(/https?:\/\/www.youtube.com\/(user|channel)\/[^\/#]+/i)
-		this.reportable[0].valor= (canal)? canal[0]: null;
+		this.setearReportableConURLMatcheadaConGP(0,/https?:\/\/www.youtube.com\/(user|channel)\/[^\/#]+/i,0);
 	}
 	
 	erVideoId=this.urlActual.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i);
 	this.reportable[1].valor=(erVideoId)? 'https://www.youtube.com/watch?'+erVideoId[1] : null;
+	
 	HdR.debug('Analisis de contexto realizado sobre YouTube!');
 }
 
@@ -154,26 +151,28 @@ GooglePlus.prototype.analizarContexto=function(){
 }
 
 GooglePlus.prototype.actualizarContexto=function(){
+	//Saco el ID del usuario o bien su nombre de la URL
+	this.setearReportableConURLMatcheadaConGP(0,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+))',1);
+	
+	//Si el USR esta viendo un album, la ID del usr se puede obtener de la url..
+	if(!this.reportable[0].valor){
+		//ToDo: testar bn para evitar error de Null al acceder al Arreglo de Grupos de captura.
+		this.reportable[0].valor= 'https?://plus.google.com/' + this.urlActual.match('https?://plus.google.com/photos/(of/)?([0-9]+|[+][^\/?#]+)(/albums/[0-9]+)?')[2];
+	}
+
 	//Obtengo el posible Album
 	this.setearReportableConURLMatcheadaConGP(2,'(https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+)',1);
 	
-	//Si el USR esta viendo un album, la ID del usr se puede obtener de la url..
-	if(this.reportable[2].valor){
-		//ToDo: testar bn para evitar error de Null al acceder al Arreglo de Grupos de captura.
-		this.reportable[0].valor= 'https?://plus.google.com/' + this.urlActual.match('https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+')[1];
-	}
-	else{
-		//Saco el ID del usuario o bien su nombre de la URL
-		this.setearReportableConURLMatcheadaConGP(0,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+))',1);
-	}
-
 	//Saco una publicacion de la URL actual
 	this.setearReportableConURLMatcheadaConGP(1,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/posts/[^/?#]+)',1);
 
-	//Foto la obtengo la URL, aunque se deberia extraer de otra forma mas efectiva...
-	this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/photos/photo/.+)',1);
+	//Foto: la obtengo de la URL, aunque son solo de albunes
+	//ToDo: Encontrar una forma de reportar fotos en la que "aparece", simial al caso q se comenta abajo:
+	//this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/photos/photo/.+)',1);
+	this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+/[0-9]+)',1);
 	
 	
+	HdR.debug('Analisis de contexto realizado sobre Google+!');
 }
 
 

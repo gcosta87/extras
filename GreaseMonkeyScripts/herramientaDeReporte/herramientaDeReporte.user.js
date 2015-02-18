@@ -27,10 +27,10 @@
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
 // @include		https://plus.google.com/*
-// @version		0.3.7
+// @version		0.3.8
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
-// @require		datos/js/Sitio.js#17.02.2015
+// @require		datos/js/Sitio.js#18.02.2015
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
 // @resource	CSS_HDR			datos/estilo.css#17.02.2015
 // @grant       GM_addStyle
@@ -83,7 +83,7 @@ var HdR = {
 		menuAcciones=document.createElement('div');
 		menuAcciones.id='hdrAcciones';
 		menuAcciones.className='acciones';
-		menuAcciones.innerHTML='<span><i class="fa fa-2x info-circle"></i> No se ha detectado nada.</span>'
+		menuAcciones.innerHTML='<span><i class="fa fa-2x fa-info-circle"></i> No se ha detectado nada.</span>'
 		
 		
 		hdrMenu.appendChild(menuAcciones);	
@@ -122,7 +122,7 @@ var HdR = {
 			this.debug('Botones de acción generados.');
 		}		
 		else{
-			html='<span><i class="fa fa-2x info-circle"></i> No se ha detectado nada.</span>';
+			html='<span><i class="fa fa-2x fa-info-circle"></i> No se ha detectado nada.</span>';
 			this.debug('No hay nada que reportar.');
 		}
 		this.menuAcciones.innerHTML=html;
