@@ -20,13 +20,14 @@
 */
 
 // ==UserScript==
-// @name		Herramienta de Reporte (HdR) [versión alpha]
+// @name		Herramienta de Reporte (HdR) [Alpha]
 // @namespace	http://www.libreware.com.ar/HdR
 // @description	Test de prueba de una Herramienta de Reporte en la navegacion sobre los principales sitios web (Twttier, Facebook, Taringa, etc..)
 // @run-at		document-end
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
-// @version		0.2.7
+// @include		https://plus.google.com/*
+// @version		0.3.7
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
 // @require		datos/js/Sitio.js#17.02.2015
@@ -82,6 +83,8 @@ var HdR = {
 		menuAcciones=document.createElement('div');
 		menuAcciones.id='hdrAcciones';
 		menuAcciones.className='acciones';
+		menuAcciones.innerHTML='<span><i class="fa fa-2x info-circle"></i> No se ha detectado nada.</span>'
+		
 		
 		hdrMenu.appendChild(menuAcciones);	
 		this.menuAcciones=menuAcciones;
@@ -101,20 +104,29 @@ var HdR = {
 
 	// Genera las acciones posible segun los recursos de la Entidad y los elementos reportables del Sitio
 	generarBotonesDeAcciones: function(){
-		recursosKeys=Object.keys(this.entidad.recursos);
 		html=''
-		for(i=0;i<(recursosKeys.length);i++){
-			recurso=recursosKeys[i];			
-			html+='<span class="grupoDeAcciones">';
-			for(j=0;j<(this.sitio.reportable.length); j++){				
-				if(this.sitio.reportable[j].valor){
-					html+=this.botonesHTML[recurso](this.sitio.reportable[j]);
+		
+		if(this.sitio.hayReportables()){
+			recursosKeys=Object.keys(this.entidad.recursos);
+
+			for(i=0;i<(recursosKeys.length);i++){
+				recurso=recursosKeys[i];			
+				html+='<span class="grupoDeAcciones">';
+				for(j=0;j<(this.sitio.reportable.length); j++){				
+					if(this.sitio.reportable[j].valor){
+						html+=this.botonesHTML[recurso](this.sitio.reportable[j]);
+					}
 				}
+				html+='</span>'	
 			}
-			html+='</span>'	
+			this.debug('Botones de acción generados.');
 		}		
+		else{
+			html='<span><i class="fa fa-2x info-circle"></i> No se ha detectado nada.</span>';
+			this.debug('No hay nada que reportar.');
+		}
 		this.menuAcciones.innerHTML=html;
-		this.debug('Botones generados!');
+		
 	},
 
 	mostrarInformacion: function() {
@@ -149,12 +161,14 @@ function determinarSitio(){
 	dominio=document.domain.replace('www.','');
 	sitio=null;
 	switch(dominio){
-		case 'twitter.com':		sitio= new Twitter();
-								break;
-		case 'youtube.com':		sitio= new YouTube();
-								break;
-		default:				sitio= new WebGenerico();
-								break;
+		case 'twitter.com':			sitio= new Twitter();
+									break;
+		case 'plus.google.com':		sitio= new GooglePlus();
+									break;
+		case 'youtube.com':			sitio= new YouTube();
+									break;
+		default:					sitio= new WebGenerico();
+									break;
 	}
 	return sitio;
 }
