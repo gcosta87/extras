@@ -1,4 +1,4 @@
-/*
+﻿/*
 	herramientaDeReporte.user.js
 	
 	Copyright 2015 Gonzalo Gabriel Costa <gonzalogcostaARROBAyahooPUNTOcomPUNTOar>
@@ -27,10 +27,12 @@
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
 // @include		https://plus.google.com/*
-// @version		0.3.8
+// @version		0.3.9
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
 // @require		datos/js/Sitio.js#18.02.2015
+// @require		datos/js/SitiosConcretos.js#18.02.2015
+// @require		
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
 // @resource	CSS_HDR			datos/estilo.css#17.02.2015
 // @grant       GM_addStyle
