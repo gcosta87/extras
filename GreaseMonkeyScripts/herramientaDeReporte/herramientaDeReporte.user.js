@@ -27,17 +27,18 @@
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
 // @include		https://plus.google.com/*
-// @version		0.3.9
+// @version		0.3.13
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
-// @require		datos/js/Sitio.js#18.02.2015
-// @require		datos/js/SitiosConcretos.js#18.02.2015
-// @require		
+// @require		datos/js/Sitio.js#22.02.2015
+// @require		datos/js/SitiosConcretos.js#22.02.2015
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
-// @resource	CSS_HDR			datos/estilo.css#17.02.2015
+// @resource	CSS_HDR			datos/estilo.css#22.02.2015
 // @grant       GM_addStyle
 // @grant       GM_getResourceText
 // @grant       GM_xmlhttpRequest
+// @grant       GM_setValue
+// @grant       GM_getValue
 // ==/UserScript==
 
 //	//	//	//	//	//	//	//	
@@ -49,12 +50,18 @@ const CSS_FA	= 'https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awes
 
 //Representacion de HdR
 var HdR = {
+	//Indica si HdR se encuentra activo o no (minimizado y sin procesar)
+	estado: GM_getValue('hdrEstado',true),
+	
 	//Representa la informacion de la entidad
 	entidad:null,
 
 	//ToDo: Representar mejor menuAcciones y estado,para que un Sitio pueda setear el HTML mas seguro o mostrar texto
 	//Objeto de la Jerarquía Sitio que se esta actualmente trabajando.
 	sitio: null,
+	
+	//Referencia al elemento (dom) que contiene al menu
+	menu: null,
 	
 	//Referencia al elemento (dom) que contiene las acciones;
 	menuAcciones: null,
@@ -63,7 +70,7 @@ var HdR = {
 		this.debug('Inicializando la herramienta...');
 		GM_addStyle(GM_getResourceText('CSS_HDR'));
 		inyectarCSS('FontAwesome',CSS_FA);
-			
+				
 		this.entidad= JSON.parse(GM_getResourceText('JSON_ENTIDAD'));	
 		this.sitio= determinarSitio();
 		
@@ -75,24 +82,26 @@ var HdR = {
 		//Defino la barra para la herramienta (#hdrMenu)
 		hdrMenu	= document.createElement('div');
 		hdrMenu.id="hdrMenu";
+		hdrMenu.className='activado';
 		
-		hdrMenu.innerHTML='<div class="menu"><span class="titulo" title="Herramienta de Reporte" ><i class="fa fa-3x fa-gear"></i></span>\
-			<a nohref class="pseudoLink" onclick="alert(\''+this.mostrarInformacion()+'\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
-			<span id="estado" title="Trabajando en '+this.sitio.nombre+'">Estado: <i class="fa fa-2x fa-'+this.sitio.logo+'"></i></span>\
+		hdrMenu.innerHTML='<div class="menu"><a nohref class="titulo pseudoLink" onclick="window.postMessage(\'HdR#toggle\',\'*\');" title="Herramienta de Reporte"><i class="fa fa-3x fa-gear"></i></a>\
+			<a nohref class="pseudoLink" onclick="window.postMessage(\'HdR#info\',\'*\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
+			<a nohref class="pseudoLink" onclick="window.postMessage(\'HdR#sitioInfo\',\'*\');" title="Trabajando en '+this.sitio.nombre+'">Estado: <i class="fa fa-2x fa-'+this.sitio.logo+'"></i></a>\
 			</div>';
 		
 		//Defino el area de los botones de accion..	
 		menuAcciones=document.createElement('div');
 		menuAcciones.id='hdrAcciones';
 		menuAcciones.className='acciones';
-		menuAcciones.innerHTML='<span><i class="fa fa-2x fa-info-circle"></i> No se ha detectado nada.</span>'
+		menuAcciones.innerHTML='<span><i class="fa fa-2x fa-info-circle"></i> No hubo detección.</span>'
 		
 		
 		hdrMenu.appendChild(menuAcciones);	
 		this.menuAcciones=menuAcciones;
 		
 		//Inserto al body
-		document.body.appendChild(hdrMenu);	
+		document.body.appendChild(hdrMenu);
+		this.menu=hdrMenu;	
 		this.debug('Menu definido.');
 	},
 
@@ -124,22 +133,60 @@ var HdR = {
 			this.debug('Botones de acción generados.');
 		}		
 		else{
-			html='<span><i class="fa fa-2x fa-info-circle"></i> No se ha detectado nada.</span>';
+			html='<span><i class="fa fa-2x fa-info-circle"></i> No hubo detección.</span>';
 			this.debug('No hay nada que reportar.');
 		}
 		this.menuAcciones.innerHTML=html;
 		
 	},
+	
+	//representa una comunicacion del DOM original (similar al window.postMessage)
+	//ToDo: evaluar si se requiere un parametro extra para datos (string o JSON)
+	consolaHdR: function(operacion){
+		//Las operacion son del tipo HdR#OperacionAEjecutar
+		if(operacion.contains('HdR#')){
+			switch(operacion) {
+				
+				case 'HdR#toggle':		this.cambiarEstado();
+										break;
+				
+				case 'HdR#info':		alert(this.mostrarInformacion());
+										break;
+										
+				case 'HdR#sitioInfo':	this.sitio.info();
+										break;
+				
+				default:		this.debug('Operación invalida! ');
+								break;
+			}
+		}
+	},
 
+	//ToDo:Funcion borrador. Se debera implementar correctamente. Mejorar el cambio de estado aislando en una funcion
+	cambiarEstado: function(){
+		this.estado=!(this.estado);
+		GM_setValue('hdrEstado',this.estado);
+		alert('Ud ha cambiado el estado de HdR a ' + ((this.estado)? 'Activado.\nHdR escaneara el sitio!':'Desactivado.\nHdR estará inactivo.'));
+		if(this.estado){
+			this.menu.className='activado';
+			this.generarBotonesDeAcciones();
+		}
+		else{
+			this.menu.className='desactivado';
+			this.menuAcciones.innerHTML='<span><i class="fa fa-2x fa-warning"></i> HdR desactivado.</span>';
+		}
+		this.debug('Estado cambiado a '+this.estado);
+	},
+	
+	
 	mostrarInformacion: function() {
-		//~ return 'HdR está corriendo con la siguiente configuracion:\\n\\tEntidad: '+this.entidad.info.nombre+'\\n\\tWeb: '+this.entidad.info.web+'\\n\\tMail: '+this.entidad.info.mail+'\\n\\tFacebook: '+this.entidad.info.facebook;
 		camposKeys= Object.keys(this.entidad.info);
 		cadena='';
 		for(i=0;i<camposKeys.length;i++){
-			cadena+='\\n\\t'+camposKeys[i]+': '+this.entidad.info[camposKeys[i]];
+			cadena+='\n\t'+camposKeys[i]+': '+this.entidad.info[camposKeys[i]];
 		}
-		
-		return 'HdR está corriendo con la configuración provista\\npor la siguiente entidad:'+cadena;
+
+		return 'HdR está corriendo con la configuración provista\npor la siguiente entidad:'+cadena;
 	},
 	
 	//	Debuging
@@ -186,6 +233,13 @@ function inyectarCSS(nombre,url ){
 	HdR.debug('Inyectado CSS de '+nombre+' en HEAD del sitio web.');
 }
 
+//Agrega la posibilidad de conectar HdR con el dom externo para recibir operaciones
+function agregarConsolaHdR(){
+	window.onmessage=function(event){			
+		HdR.consolaHdR(event.data);
+	}
+	HdR.debug('Activanda consola HdR para eventos window.postMessage()');		
+}
 //	//	//	//	//	//	//	//	
 //	FUNCIONES EXTRAS
 //	//	//	//	//	//	//	//	
@@ -196,5 +250,6 @@ function inyectarCSS(nombre,url ){
 //	//	//	//	//	//	//	//	
 //	INICIO/SETUP
 //	//	//	//	//	//	//	//	
+agregarConsolaHdR();
 HdR.inicializar();
 HdR.generarBotonesDeAcciones();
