@@ -33,7 +33,7 @@ Twitter.prototype.analizarContexto=function(){
 	this.setearReportableConURLMatcheadaConGP(0,/(https?:\/\/twitter.com\/[^#/]+)/,1);
 
 	this.actualizarContexto();
-	this.actualizarContextoAnteCambios();
+	this.actualizarContextoAnteCambiosDeURL();
 	HdR.debug('Analisis de contexto realizado sobre Twitter!');
 }
 	
@@ -56,7 +56,8 @@ YouTube.prototype.constructor=YouTube;
 
 YouTube.prototype.analizarContexto=function(){
 	this.actualizarContexto();
-	this.actualizarContextoAnteCambios();
+	//~ this.actualizarContextoAnteCambiosDeURL();
+	this.actualizarContextoAnteCambiosDeClase();
 }
 YouTube.prototype.actualizarContexto=function(){
 	//Extraigo el ID del Channel para evitar cambios de nombre y que afecten futura lectura del reporte.
@@ -88,7 +89,7 @@ GooglePlus.prototype.constructor=GooglePlus;
 
 GooglePlus.prototype.analizarContexto=function(){
 	this.actualizarContexto();
-	this.actualizarContextoAnteCambios();
+	this.actualizarContextoAnteCambiosDeURL();
 }
 
 GooglePlus.prototype.actualizarContexto=function(){

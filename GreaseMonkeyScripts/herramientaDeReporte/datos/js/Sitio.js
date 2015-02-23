@@ -41,8 +41,14 @@ function Sitio(nombre, logoFA, elementosReportables){
 
 Sitio.prototype.analizarContexto=	function(){console.log('Implementar #analizarContexto en hijo de Sitio!')};
 Sitio.prototype.actualizarContexto=	function(){console.log('Implementar #actualizarContexto en hijo de Sitio!')};
+
+
+//	Funciones de respuesta ante cambios
+
+
+
 //ToDo: Reemplazar actualizaciones periodicas por deteccion de eventos en DOM ante llamadas AJAX!!!
-Sitio.prototype.actualizarContextoAnteCambios=function(){
+Sitio.prototype.actualizarContextoAnteCambiosDeURL=function(){
 	setInterval(function(){
 		if(HdR.sitio.urlActual  != document.documentURI){
 			HdR.debug('Cambios en el contexto detectados: modificacion de URL.');
@@ -58,7 +64,37 @@ Sitio.prototype.actualizarContextoAnteCambios=function(){
 	},1000);
 };
 
+//Agrega el evento correspondiente para ejecutar  ante cambios en en la clasee del Body
+//ToDO: parametrizar mejor. Deberia adaptarse para cualquier elemento (no solo body)
+Sitio.prototype.actualizarContextoAnteCambiosDeClase=function(){	
+	observer = new MutationObserver(function(mutations) {
+		HdR.debug('Cambios en el contexto detectados: className modificada en Body.');
+		HdR.sitio.urlActual=document.documentURI;
+	
+		HdR.menuAcciones.innerHTML='<span><i class="fa fa-2x fa-refresh fa-spin"></i> Analizando cambios.</span>';
+
+		//~ setTimeout(function(){
+			HdR.sitio.actualizarContexto();
+			HdR.generarBotonesDeAcciones();
+		//~ },5000);
+	});
+ 
+	var configuracion = { attributes: true, attributeFilter: ['class']};	
+	observer.observe(document.body, configuracion);
+};
+
+
+
 //	Funciones comunes útiles a todos los sitios..
+
+//Presenta al Usr informacion del sitio, cm p.e: que puede reportar.
+Sitio.prototype.info=function(){
+	info='HdR está usando la configuración para '+this.nombre+', la\ncual le provee la posibilidad de reportar:';
+	this.reportable.forEach(function(e){info+='\n\t· '+e.tipo})
+	
+	alert(info);
+};
+
 
 //Setea al reportable la url si esta coincide, sino lo seta null.
 Sitio.prototype.setearReportableConURLMatcheada=function(indiceReportable,regex){
