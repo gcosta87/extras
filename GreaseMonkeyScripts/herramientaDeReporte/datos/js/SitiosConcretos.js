@@ -33,7 +33,7 @@ Twitter.prototype.analizarContexto=function(){
 	this.setearReportableConURLMatcheadaConGP(0,/(https?:\/\/twitter.com\/[^#/]+)/,1);
 
 	this.actualizarContexto();
-	this.actualizarContextoAnteCambiosDeURL();
+	this.actualizarContextoAnteCambiosDeURL(SITIO_RESPUESTA_LENTA);
 	HdR.debug('Analisis de contexto realizado sobre Twitter!');
 }
 	
@@ -57,8 +57,9 @@ YouTube.prototype.constructor=YouTube;
 YouTube.prototype.analizarContexto=function(){
 	this.actualizarContexto();
 	//~ this.actualizarContextoAnteCambiosDeURL();
-	this.actualizarContextoAnteCambiosDeClase();
+	this.actualizarContextoAnteCambiosDeClase(document.body,SITIO_RESPUESTA_INMEDIATA);
 }
+
 YouTube.prototype.actualizarContexto=function(){
 	//Extraigo el ID del Channel para evitar cambios de nombre y que afecten futura lectura del reporte.
 
@@ -89,7 +90,8 @@ GooglePlus.prototype.constructor=GooglePlus;
 
 GooglePlus.prototype.analizarContexto=function(){
 	this.actualizarContexto();
-	this.actualizarContextoAnteCambiosDeURL();
+	//G+ no es compatible ante el metodo de cambio de clase (al volver atras, no responde)
+	this.actualizarContextoAnteCambiosDeURL(SITIO_RESPUESTA_INMEDIATA);
 }
 
 GooglePlus.prototype.actualizarContexto=function(){
@@ -110,8 +112,10 @@ GooglePlus.prototype.actualizarContexto=function(){
 
 	//Foto: la obtengo de la URL, aunque son solo de albunes
 	//ToDo: Encontrar una forma de reportar fotos en la que "aparece", simial al caso q se comenta abajo:
-	//this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/photos/photo/.+)',1);
-	this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+/[0-9]+)',1);
+	this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/([0-9]+|[+][^\/?#]+)/photos/photo/.+)',1);
+	if(!this.reportable[3].valor){
+		this.setearReportableConURLMatcheadaConGP(3,'(https?://plus.google.com/photos/([0-9]+|[+][^\/?#]+)/albums/[0-9]+/[0-9]+)',1);
+	}
 	
 	
 	HdR.debug('Analisis de contexto realizado sobre Google+!');

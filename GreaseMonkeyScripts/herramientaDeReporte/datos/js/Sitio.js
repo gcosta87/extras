@@ -25,6 +25,18 @@
  * 
  **/
  
+ //	CONSTANTES
+ //
+ 
+ //Tiempos establecidos para responder ante un evento: la demora supone tolerar pequeñas mod al DOM
+ const SITIO_RESPUESTA_INMEDIATA = 400;
+ const SITIO_RESPUESTA_NORMAL = 1000;
+ const SITIO_RESPUESTA_INTERMEDIA = 2500;
+ const SITIO_RESPUESTA_LENTA = 5000;
+ 
+ 
+ 
+ 
 //
 //	CLASE ABSTRACTA
 //
@@ -48,43 +60,37 @@ Sitio.prototype.actualizarContexto=	function(){console.log('Implementar #actuali
 
 
 //ToDo: Reemplazar actualizaciones periodicas por deteccion de eventos en DOM ante llamadas AJAX!!!
-Sitio.prototype.actualizarContextoAnteCambiosDeURL=function(){
+Sitio.prototype.actualizarContextoAnteCambiosDeURL=function(tiempoDeRespuesta){
 	setInterval(function(){
 		if(HdR.sitio.urlActual  != document.documentURI){
-			HdR.debug('Cambios en el contexto detectados: modificacion de URL.');
-			HdR.sitio.urlActual=document.documentURI;
-			
-			HdR.menuAcciones.innerHTML='<span><i class="fa fa-2x fa-refresh fa-spin"></i> Analizando cambios.</span>';
-			
-			setTimeout(function(){
-				HdR.sitio.actualizarContexto();
-				HdR.generarBotonesDeAcciones();
-			},5000);
+			HdR.sitio.respuestaAlCambioDeContexto(tiempoDeRespuesta,'modificacion de URL');
 		}
 	},1000);
 };
 
-//Agrega el evento correspondiente para ejecutar  ante cambios en en la clasee del Body
-//ToDO: parametrizar mejor. Deberia adaptarse para cualquier elemento (no solo body)
-Sitio.prototype.actualizarContextoAnteCambiosDeClase=function(){	
+//Agrega el evento correspondiente para ejecutar ante cambios en en la clasee del Body
+Sitio.prototype.actualizarContextoAnteCambiosDeClase=function(objetoAObservar,tiempoDeRespuesta){	
 	observer = new MutationObserver(function(mutations) {
-		HdR.debug('Cambios en el contexto detectados: className modificada en Body.');
-		HdR.sitio.urlActual=document.documentURI;
-	
-		HdR.menuAcciones.innerHTML='<span><i class="fa fa-2x fa-refresh fa-spin"></i> Analizando cambios.</span>';
-
-		//~ setTimeout(function(){
-			HdR.sitio.actualizarContexto();
-			HdR.generarBotonesDeAcciones();
-		//~ },5000);
+		HdR.sitio.respuestaAlCambioDeContexto(tiempoDeRespuesta, 'className modificada en elemento');
 	});
  
 	var configuracion = { attributes: true, attributeFilter: ['class']};	
-	observer.observe(document.body, configuracion);
+	observer.observe(objetoAObservar, configuracion);
 };
 
 
+Sitio.prototype.respuestaAlCambioDeContexto=function(tiempoDeRespuesta, msjDebug){
+	HdR.debug('Cambios en el contexto detectados: '+msjDebug);
+	HdR.sitio.urlActual=document.documentURI;
+	
+	HdR.menuAcciones.innerHTML='<span><i class="fa fa-2x fa-refresh fa-spin"></i> Analizando cambios.</span>';
+	
+	setTimeout(function(){
+		HdR.sitio.actualizarContexto();
+		HdR.generarBotonesDeAcciones();
+	},tiempoDeRespuesta);
 
+}
 //	Funciones comunes útiles a todos los sitios..
 
 //Presenta al Usr informacion del sitio, cm p.e: que puede reportar.
