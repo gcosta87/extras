@@ -27,7 +27,9 @@
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
 // @include		https://plus.google.com/*
-// @version		0.4.0
+// @include		http://ask.fm/*
+// @include		https://instagram.com/*
+// @version		0.4.5
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
 // @require		datos/js/Sitio.js#23.02.2015
@@ -109,7 +111,7 @@ var HdR = {
 
 	//Retorna el HTML de un boton segun el tipo de recurso de la Entidad para un Objeto reportable {tipo,valor}
 	botonesHTML:{
-		'__linkBase':	function(objetoReportable,numeroReportable,msjVia,msjConfirmacion,recurso,faLogo){ return '<a title="Reportar '+objetoReportable.tipo+' vía '+msjVia+'" onclick="if(confirm(\''+msjConfirmacion+'\\n\\n¿Está seguro que desea hacerlo?.\')) window.postMessage(\'{&quot;fuente&quot;:&quot;HdR&quot;, &quot;operacion&quot;:&quot;reportar&quot;, &quot;recurso&quot;:&quot;'+recurso+'&quot;,&quot;reportable&quot;:'+numeroReportable+'}\',\'*\');" nohref><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-'+faLogo+' fa-stack-1x"></i></span></a>'; },
+		'__linkBase':	function(objetoReportable,numeroReportable,msjVia,msjConfirmacion,recurso,faLogo){ return '<a title="Reportar '+objetoReportable.tipo+' vía '+msjVia+'" onclick="if(confirm(\''+msjConfirmacion+'\\n\\n¿Está seguro que desea hacerlo?.\')) window.postMessage(\'{&quot;fuente&quot;:&quot;HdR&quot;, &quot;operacion&quot;:&quot;reportar&quot;, &quot;recurso&quot;:&quot;'+recurso+'&quot;,&quot;reportable&quot;:'+numeroReportable+'}\',\'*\');" class="pseudoLink" nohref><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-'+faLogo+' fa-stack-1x"></i></span></a>'; },
 		'mail':		function(objetoReportable,numeroReportable){ return HdR.botonesHTML['__linkBase'](objetoReportable, numeroReportable, 'correo electrónico','Ud va a reportar un '+objetoReportable.tipo+' al mail '+HdR.entidad.recursos.mail, 'mail', 'envelope-o'); },
 		'url':		function(objetoReportable,numeroReportable){ return HdR.botonesHTML['__linkBase'](objetoReportable, numeroReportable, 'URL de la entidad','Ud va a reportar un '+objetoReportable.tipo+' a la URL provista por la entidad', 'url', 'link'); },
 		'twitter':	function(objetoReportable,numeroReportable){ return HdR.botonesHTML['__linkBase'](objetoReportable, numeroReportable, 'Twitter','Ud va a reportar un '+objetoReportable.tipo+' al Twitter de la entidad ('+HdR.entidad.recursos.twitter+')', 'twitter', 'twitter'); }
@@ -157,7 +159,7 @@ var HdR = {
 							alert('Se ha realizado el reporte vía URL!');
 							break;
 			
-			case 'twitter':	window.open('https://twitter.com/intent/tweet?text='+encodeURI(HdR.entidad.recursos.twitter+' Se reporta vía HdR= Tipo:'+objetoReportable.tipo+', Sitio:'+HdR.sitio.nombre+', URL:')+'&url='+objetoReportable.valor,'_blank');
+			case 'twitter':	window.open('https://twitter.com/intent/tweet?text='+encodeURI(HdR.entidad.recursos.twitter+' Se reporta vía HdR. Tipo:'+objetoReportable.tipo+', Sitio:'+HdR.sitio.nombre+', URL:')+'&url='+objetoReportable.valor,'_blank');
 							alert('Se ha realizado el reporte vía Twitter!');
 							break;
 			
@@ -232,6 +234,7 @@ var HdR = {
 //	FUNCIONES PRINCIPALES
 //	//	//	//	//	//	//	//	
 
+//ToDo: representar mejor y reemplazar el Switch!!
 function determinarSitio(){
 	dominio=document.domain.replace('www.','');
 	sitio=null;
@@ -241,6 +244,10 @@ function determinarSitio(){
 		case 'plus.google.com':		sitio= new GooglePlus();
 									break;
 		case 'youtube.com':			sitio= new YouTube();
+									break;
+		case 'ask.fm':				sitio= new AskFm();
+									break;
+		case 'instagram.com':		sitio= new Instagram();
 									break;
 		default:					sitio= new WebGenerico();
 									break;

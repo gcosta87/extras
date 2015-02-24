@@ -129,6 +129,48 @@ GooglePlus.prototype.actualizarContexto=function(){
 
 
 
+
+function AskFm(){
+	Sitio.call(this,'Ask.Fm', 'eye', [{tipo:'Usuario', valor:null},{tipo:'Respuesta', valor:null}] );
+}
+
+AskFm.prototype=Object.create(Sitio.prototype);
+AskFm.prototype.constructor=WebGenerico;
+
+AskFm.prototype.analizarContexto=function(){
+	this.setearReportableConURLMatcheadaConGP(0,'(https?://ask.fm/[0-9a-zA-ZñÑ]+)',1);
+	this.setearReportableConURLMatcheada(1,'/answer/[0-9]+$');
+	
+	HdR.debug('Analisis de contexto realizado sobre Ask.Fm!');
+};
+
+
+
+
+function Instagram(){
+	Sitio.call(this, 'Instagram', 'instagram', [{tipo:'Usuario', valor: null},{tipo:'Foto', valor: null}]);
+}
+Instagram.prototype=Object.create(Sitio.prototype);
+Instagram.prototype.constructor=Instagram;
+
+
+Instagram.prototype.analizarContexto=function(){
+	this.actualizarContexto();
+	//ToDo: testar eventos mas convenientes
+	this.actualizarContextoAnteCambiosDeURL(SITIO_RESPUESTA_INMEDIATA);	
+}
+
+Instagram.prototype.actualizarContexto=function(){
+	//extraigo el USR del link que lo vincula como Author (rel="author")
+	linkAuthor=document.body.querySelector('a[rel="author"]');
+	this.setearValorAReportable(0, ((linkAuthor)? linkAuthor.href:null));
+	
+	
+	this.setearReportableConURLMatcheada(1,'https?://instagram.com/p/[^/]+/');
+}
+
+
+
 // Sitios web comunes o no "especificados" se podrá reportar la URL actual.
 function WebGenerico(){
 	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'Url', valor:null}] );
@@ -139,4 +181,5 @@ WebGenerico.prototype.constructor=WebGenerico;
 
 WebGenerico.prototype.analizarContexto=function(){
 	this.setearValorAReportable(0,this.urlActual);
+	HdR.debug('Analisis de contexto realizado sobre el Sitio Web!');
 };

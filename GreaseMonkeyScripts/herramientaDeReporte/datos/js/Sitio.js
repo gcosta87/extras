@@ -120,6 +120,6 @@ Sitio.prototype.hayReportables=function(){
 
 
 //PEqueño setter que codifica la URL (valor)
-Sitio.prototype.setearValorAReportable=function(numeroReportable, valor){
-	this.reportable[numeroReportable]=(valor)? encodeURI(valor):null;
+Sitio.prototype.setearValorAReportable=function(numeroReportable, valorNuevo){
+	this.reportable[numeroReportable].valor=(valorNuevo)? encodeURI(valorNuevo):null;
 }
