@@ -65,7 +65,7 @@ YouTube.prototype.actualizarContexto=function(){
 
 	canal=document.querySelector('div.yt-user-info a');
 	if(canal){
-		this.reportable[0].valor=canal.href;
+		this.setearValorAReportable(0,canal.href);
 	}
 	else{
 		//Si no se pudo extraer analizo la URL (ya que posiblemente este viendo su pagina de USR)
@@ -73,7 +73,12 @@ YouTube.prototype.actualizarContexto=function(){
 	}
 	
 	erVideoId=this.urlActual.match(/https?:\/\/www.youtube.com\/watch[^/]*(v=[^&$]+)/i);
-	this.reportable[1].valor=(erVideoId)? 'https://www.youtube.com/watch?'+erVideoId[1] : null;
+	if(erVideoId){
+		this.setearValorAReportable(1,'https://www.youtube.com/watch?'+erVideoId[1]);
+	}
+	else{
+		this.setearValorAReportable(1,null);
+	}
 	
 	HdR.debug('Analisis de contexto realizado sobre YouTube!');
 }
@@ -101,7 +106,7 @@ GooglePlus.prototype.actualizarContexto=function(){
 	//Si el USR esta viendo un album, la ID del usr se puede obtener de la url..
 	if(!this.reportable[0].valor){
 		//ToDo: testar bn para evitar error de Null al acceder al Arreglo de Grupos de captura.
-		this.reportable[0].valor= 'https?://plus.google.com/' + this.urlActual.match('https?://plus.google.com/photos/(of/)?([0-9]+|[+][^\/?#]+)(/albums/[0-9]+)?')[2];
+		this.setearValorAReportable(0,'https?://plus.google.com/' + this.urlActual.match('https?://plus.google.com/photos/(of/)?([0-9]+|[+][^\/?#]+)(/albums/[0-9]+)?')[2]);
 	}
 
 	//Obtengo el posible Album
@@ -133,5 +138,5 @@ WebGenerico.prototype=Object.create(Sitio.prototype);
 WebGenerico.prototype.constructor=WebGenerico;
 
 WebGenerico.prototype.analizarContexto=function(){
-	this.reportable[0].valor=this.urlActual;
+	this.setearValorAReportable(0,this.urlActual);
 };

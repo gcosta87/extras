@@ -104,13 +104,13 @@ Sitio.prototype.info=function(){
 
 //Setea al reportable la url si esta coincide, sino lo seta null.
 Sitio.prototype.setearReportableConURLMatcheada=function(indiceReportable,regex){
-	this.reportable[indiceReportable].valor= (this.urlActual.match(regex))? this.urlActual : null;
+	this.reportable[indiceReportable].valor= (this.urlActual.match(regex))? encodeURI(this.urlActual) : null;
 }
 
 //Similar al anterior, pero se indica un grupo de captura (numero).
 Sitio.prototype.setearReportableConURLMatcheadaConGP=function(indiceReportable,regex,grupoDeCaptura){
 	arrayER=this.urlActual.match(regex);
-	this.reportable[indiceReportable].valor=(arrayER)? arrayER[grupoDeCaptura]:null;
+	this.reportable[indiceReportable].valor=(arrayER)? encodeURI(arrayER[grupoDeCaptura]):null;
 }
 
 //Retorna true si existe al menos 1 dato a reportar
@@ -118,3 +118,8 @@ Sitio.prototype.hayReportables=function(){
 	return this.reportable.some(function(r){return r.valor});
 }
 
+
+//PEqueño setter que codifica la URL (valor)
+Sitio.prototype.setearValorAReportable=function(numeroReportable, valor){
+	this.reportable[numeroReportable]=(valor)? encodeURI(valor):null;
+}
