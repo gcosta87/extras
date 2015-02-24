@@ -27,13 +27,14 @@
 // @include		https://twitter.com/*
 // @include		https://www.youtube.com/*
 // @include		https://plus.google.com/*
-// @version		0.3.13
+// @version		0.4.0
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
-// @require		datos/js/Sitio.js#22.02.2015
-// @require		datos/js/SitiosConcretos.js#22.02.2015
+// @require		datos/js/Sitio.js#23.02.2015
+// @require		datos/js/SitiosConcretos.js#23.02.2015
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
 // @resource	CSS_HDR			datos/estilo.css#22.02.2015
+// @noframes
 // @grant       GM_addStyle
 // @grant       GM_getResourceText
 // @grant       GM_xmlhttpRequest
@@ -84,9 +85,10 @@ var HdR = {
 		hdrMenu.id="hdrMenu";
 		hdrMenu.className='activado';
 		
-		hdrMenu.innerHTML='<div class="menu"><a nohref class="titulo pseudoLink" onclick="window.postMessage(\'HdR#toggle\',\'*\');" title="Herramienta de Reporte"><i class="fa fa-3x fa-gear"></i></a>\
-			<a nohref class="pseudoLink" onclick="window.postMessage(\'HdR#info\',\'*\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
-			<a nohref class="pseudoLink" onclick="window.postMessage(\'HdR#sitioInfo\',\'*\');" title="Trabajando en '+this.sitio.nombre+'">Estado: <i class="fa fa-2x fa-'+this.sitio.logo+'"></i></a>\
+		hdrMenu.innerHTML='<div class="menu">\
+			<a nohref class="titulo pseudoLink" onclick="window.postMessage(\'{&quot;fuente&quot;:&quot;HdR&quot;, &quot;operacion&quot;:&quot;toggle&quot;}\',\'*\');" title="Herramienta de Reporte"><i class="fa fa-3x fa-gear"></i></a>\
+			<a nohref class="pseudoLink" onclick="window.postMessage(\'{&quot;fuente&quot;:&quot;HdR&quot;, &quot;operacion&quot;:&quot;info&quot;}\',\'*\');" title="Más info"><i class="fa fa-2x  fa-life-ring"></i></a>\
+			<a nohref class="pseudoLink" onclick="window.postMessage(\'{&quot;fuente&quot;:&quot;HdR&quot;, &quot;operacion&quot;:&quot;sitioInfo&quot;}\',\'*\');" title="Trabajando con la configuración para '+this.sitio.nombre+'">Sitio: <i class="fa fa-2x fa-'+this.sitio.logo+'"></i></a>\
 			</div>';
 		
 		//Defino el area de los botones de accion..	
@@ -107,10 +109,10 @@ var HdR = {
 
 	//Retorna el HTML de un boton segun el tipo de recurso de la Entidad para un Objeto reportable {tipo,valor}
 	botonesHTML:{
-		//FixMe: salto de linea de windows..\r\n¿? (0d0a)
-		'mail':		function(objetoReportable){ return '<a title="Reportar '+objetoReportable.tipo+' vía correo electrónico" onclick="return confirm(\'Ud va a reportar al mail '+HdR.entidad.recursos.mail+' :\\n'+objetoReportable.valor+'\\n\\n¿Está seguro que desea hacerlo?.\');" href="mailto:'+HdR.entidad.recursos.mail+'?subject=Reporte de HdR&body=Se reporta la siguiente información:%0D%0ASitio: '+encodeURI(HdR.sitio.nombre)+'%0D%0AReporte de: '+encodeURI(objetoReportable.tipo)+'%0D%0Ainformación adjunta:%0D%0A'+encodeURI(objetoReportable.valor)+'"><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-envelope-o fa-stack-1x"></i></span></a>'; },
-		'url':		function(objetoReportable){ urlFinal=HdR.entidad.recursos.url+encodeURI(objetoReportable.valor+'&sitio='+HdR.sitio.nombre+'&tipo='+objetoReportable.tipo); return '<a title="Reportar '+objetoReportable.tipo+' vía URL específica" onclick="return confirm(\'Ud reportará a un servidor específico provisto por la Entidad:\\nURL:'+HdR.entidad.recursos.url+'\\nDatos:'+objetoReportable.valor+'\\n\\n¿Está seguro que desea hacerlo?.\');" href="'+urlFinal+'" target="_blank"><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-link fa-stack-1x"></i></span></i></a>'; },
-		'twitter':	function(objetoReportable){ tweet=encodeURI(HdR.entidad.recursos.twitter+' Reporte vía HdR. Tipo:'+objetoReportable.tipo+', Sitio:'+HdR.sitio.nombre+', URL:'); return '<a title="Reportar '+objetoReportable.tipo+' vía Twitter" onclick="return confirm(\'Ud creara un tweet a la cuenta oficial de la entidad ('+HdR.entidad.recursos.twitter+') para reportar:\\n'+objetoReportable.valor+'\\n\\n¿Está seguro que desea hacerlo?.\');" href="https://twitter.com/intent/tweet?text='+tweet+'&url='+encodeURI(objetoReportable.valor)+'" target="_blank"><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-twitter fa-stack-1x"></i></span></a>'; }
+		'__linkBase':	function(objetoReportable,numeroReportable,msjVia,msjConfirmacion,recurso,faLogo){ return '<a title="Reportar '+objetoReportable.tipo+' vía '+msjVia+'" onclick="if(confirm(\''+msjConfirmacion+'\\n\\n¿Está seguro que desea hacerlo?.\')) window.postMessage(\'{&quot;fuente&quot;:&quot;HdR&quot;, &quot;operacion&quot;:&quot;reportar&quot;, &quot;recurso&quot;:&quot;'+recurso+'&quot;,&quot;reportable&quot;:'+numeroReportable+'}\',\'*\');" nohref><span class="fa-stack fa-lg"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-'+faLogo+' fa-stack-1x"></i></span></a>'; },
+		'mail':		function(objetoReportable,numeroReportable){ return HdR.botonesHTML['__linkBase'](objetoReportable, numeroReportable, 'correo electrónico','Ud va a reportar un '+objetoReportable.tipo+' al mail '+HdR.entidad.recursos.mail, 'mail', 'envelope-o'); },
+		'url':		function(objetoReportable,numeroReportable){ return HdR.botonesHTML['__linkBase'](objetoReportable, numeroReportable, 'URL de la entidad','Ud va a reportar un '+objetoReportable.tipo+' a la URL provista por la entidad', 'url', 'link'); },
+		'twitter':	function(objetoReportable,numeroReportable){ return HdR.botonesHTML['__linkBase'](objetoReportable, numeroReportable, 'Twitter','Ud va a reportar un '+objetoReportable.tipo+' al Twitter de la entidad ('+HdR.entidad.recursos.twitter+')', 'twitter', 'twitter'); }
 	},
 
 	// Genera las acciones posible segun los recursos de la Entidad y los elementos reportables del Sitio
@@ -121,11 +123,11 @@ var HdR = {
 			recursosKeys=Object.keys(this.entidad.recursos);
 
 			for(i=0;i<(recursosKeys.length);i++){
-				recurso=recursosKeys[i];			
+				recurso=recursosKeys[i];
 				html+='<span class="grupoDeAcciones">';
 				for(j=0;j<(this.sitio.reportable.length); j++){				
 					if(this.sitio.reportable[j].valor){
-						html+=this.botonesHTML[recurso](this.sitio.reportable[j]);
+						html+=this.botonesHTML[recurso](this.sitio.reportable[j],j);
 					}
 				}
 				html+='</span>'	
@@ -140,25 +142,49 @@ var HdR = {
 		
 	},
 	
-	//representa una comunicacion del DOM original (similar al window.postMessage)
-	//ToDo: evaluar si se requiere un parametro extra para datos (string o JSON)
-	consolaHdR: function(operacion){
-		//Las operacion son del tipo HdR#OperacionAEjecutar
-		if(operacion.contains('HdR#')){
-			switch(operacion) {
-				
-				case 'HdR#toggle':		this.cambiarEstado();
-										break;
-				
-				case 'HdR#info':		alert(this.mostrarInformacion());
-										break;
-										
-				case 'HdR#sitioInfo':	this.sitio.info();
-										break;
-				
-				default:		this.debug('Operación invalida! ');
+	//LLeva a cabo la accion concreta de reportar
+	//se recibe como parametro una operacion de consola con los atributos: {recurso:String, reportable:Numero}
+	//ToDo: Mejorar la parametrizacion de los reportes
+	reportar: function(objeto){
+		objetoReportable=this.sitio.reportable[objeto.reportable];
+		
+		switch(objeto.recurso){
+			case 'mail':	window.location='mailto:'+HdR.entidad.recursos.mail+'?subject=Reporte de HdR&body=Se reporta la siguiente información:%0D%0ASitio: '+encodeURI(HdR.sitio.nombre)+'%0D%0AReporte de: '+encodeURI(objetoReportable.tipo)+'%0D%0Ainformación adjunta:%0D%0A'+encodeURI(objetoReportable.valor);
+							alert('Se ha realizado el reporte vía mail!');
+							break;
+			
+			case 'url':		window.open(HdR.entidad.recursos.url+objetoReportable.valor+'&sitio='+HdR.sitio.nombre+'&tipo='+objetoReportable.tipo,'_blank');
+							alert('Se ha realizado el reporte vía URL!');
+							break;
+			
+			case 'twitter':	window.open('https://twitter.com/intent/tweet?text='+encodeURI(HdR.entidad.recursos.twitter+' Se reporta vía HdR= Tipo:'+objetoReportable.tipo+', Sitio:'+HdR.sitio.nombre+', URL:')+'&url='+objetoReportable.valor,'_blank');
+							alert('Se ha realizado el reporte vía Twitter!');
+							break;
+			
+			default:		alert('Ha ocurrido un error!.\nNo se ha llevado acabo la operacion.');
+							this.debug('Recurso desconocido. No se puede reportar!!.');
+							break;
+		}
+	},
+	
+	//representa una comunicacion del DOM original (similar al window.postMessage)	
+	consolaHdR: function(objeto){
+		switch(objeto.operacion) {
+			
+			case 'reportar':	this.reportar(objeto);
 								break;
-			}
+			
+			case 'toggle':		this.cambiarEstado();
+								break;
+			
+			case 'info':		alert(this.mostrarInformacion());
+								break;
+									
+			case 'sitioInfo':	this.sitio.info();
+								break;
+			
+			default:		this.debug('Operación invalida! ');
+							break;
 		}
 	},
 
@@ -236,9 +262,12 @@ function inyectarCSS(nombre,url ){
 //Agrega la posibilidad de conectar HdR con el dom externo para recibir operaciones
 function agregarConsolaHdR(){
 	window.onmessage=function(event){			
-		HdR.consolaHdR(event.data);
+		objeto=JSON.parse(event.data);
+		if((objeto) && (objeto.fuente) && (objeto.fuente=='HdR')){
+			HdR.consolaHdR(objeto);
+		}
 	}
-	HdR.debug('Activanda consola HdR para eventos window.postMessage()');		
+	HdR.debug('Activada la Consola HdR para eventos window.postMessage()');		
 }
 //	//	//	//	//	//	//	//	
 //	FUNCIONES EXTRAS
