@@ -5,6 +5,7 @@
 	box-sizing: border-box; 
 	min-width: 650px;
 	 transition: all 1s ease 0s;
+	 font-size:13px;
 }
 
 #hdrMenu:hover {
@@ -61,3 +62,26 @@
   color: #f5f5f8;
   text-decoration:none;
 }
+
+/*Defino colores para identificar los distintos reportables posibles*/
+
+#hdrMenu .acciones span.grupoDeAcciones .Usuario{
+	color: #f5f5f8;;
+}
+
+#hdrMenu .acciones span.grupoDeAcciones .Publicación,#hdrMenu .acciones span.grupoDeAcciones .Respuesta,#hdrMenu .acciones span.grupoDeAcciones .Tweet {
+	color: #B0CDF8;
+}
+
+#hdrMenu .acciones span.grupoDeAcciones .Album{
+	color: #CFF8B0;
+}
+
+#hdrMenu .acciones span.grupoDeAcciones .Foto{
+	color: #DAF88B;
+}
+
+#hdrMenu .acciones span.grupoDeAcciones .Video{
+	color: #F8453C;
+}
+
