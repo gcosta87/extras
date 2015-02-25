@@ -30,11 +30,11 @@
 // @include		http://ask.fm/*
 // @include		https://instagram.com/*
 // @match		https://(www|es-la).facebook.com/*
-// @version		0.4.5
+// @version		0.5.0
 // @downloadURL	https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/herramientaDeReporte.user.js
 // @icon		https://github.com/gcosta87/extras/raw/master/GreaseMonkeyScripts/herramientaDeReporte/logo.png
-// @require		datos/js/Sitio.js#23.02.2015
-// @require		datos/js/SitiosConcretos.js#23.02.2015
+// @require		datos/js/Sitio.js#24.02.2015
+// @require		datos/js/SitiosConcretos.js#24.02.2015
 // @resource	JSON_ENTIDAD	datos/Entidad.json.js#16.02.2015
 // @resource	CSS_HDR			datos/estilo.css#22.02.2015
 // @noframes
