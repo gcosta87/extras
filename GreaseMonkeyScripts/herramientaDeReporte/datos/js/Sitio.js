@@ -98,7 +98,21 @@ Sitio.prototype.info=function(){
 	info='HdR está usando la configuración para '+this.nombre+', la\ncual le provee la posibilidad de reportar:';
 	this.reportable.forEach(function(e){info+='\n\t· '+e.tipo})
 	
-	alert(info);
+	if(!this.hayReportables()){
+		alert(info);
+	}
+	else{
+		respuesta=confirm(info+'\n\n¿Desea visualizar los valores de los datos a reportar?');
+		if(respuesta){
+			info='Se presentan los valores actuales de los datos:\n'
+			this.reportable.forEach(function(e){if(e.valor)info+='\n\t· '+e.tipo+':\n\t'+((e.valor.length>100)? e.valor.substring(0,100)+'...':e.valor)+'\n'});
+			info+='\n\n';
+			
+			alert(info);
+		}
+	}
+	
+	
 };
 
 
