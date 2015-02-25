@@ -171,6 +171,47 @@ Instagram.prototype.actualizarContexto=function(){
 
 
 
+
+function Facebook(){
+	Sitio.call(this, 'Facebook', 'facebook', [{tipo:'Usuario',valor:null},{tipo:'Publicación',valor:null},{tipo:'Album',valor:null},{tipo:'Foto',valor:null},{tipo:'Video',valor:null}])
+}
+
+Facebook.prototype=Object.create(Sitio.prototype);
+Facebook.prototype.constructor=Facebook;
+
+Facebook.prototype.analizarContexto=function(){
+	this.actualizarContexto();
+	//ToDo: Encontrar un evento más apropiado...
+	this.actualizarContextoAnteCambiosDeURL(SITIO_RESPUESTA_INTERMEDIA);	
+}
+
+Facebook.prototype.actualizarContexto=function(){
+	//USR:	https://www.facebook.com/eldialp/....
+	this.setearReportableConURLMatcheadaConGP(0,'(https://(www|es-la).facebook.com/[0-9A-Za-zñÑ_-]+)',1);
+	if(this.reportable[0].valor){
+		//Intento obtener el usr del DOM: un <a data-gt=... href="facebook.com/USR">
+		elemento=document.querySelector('a[data-gt]');
+		if((elemento) && (elemento.href.contains('?'))){
+			this.setearValorAReportable(0,elemento.href.match('[^?]+')[0]);
+		}
+	}
+
+	//Publicacion:	https://www.facebook.com/eldialp/posts/846909015352586
+	this.setearReportableConURLMatcheada(1,'https://(www|es-la).facebook.com/[0-9A-Za-zñÑ_-]+/posts/');
+
+	//Album:	https://www.facebook.com/media/set/?set=a.490828590960632.103045.132138033496358&type=3
+	this.setearReportableConURLMatcheadaConGP(2,'(https://(www|es-la).facebook.com/media/set/?set=[^&]+)',1);
+
+	//Foto:	https://www.facebook.com/eldialp/photos/pb.132138033496358.-2207520000.1424790487./846942782015876/?type=1&theater
+	this.setearReportableConURLMatcheada(3,'https://(www|es-la).facebook.com/[0-9A-Za-zñÑ_-]+/photos/');
+
+	//Video:	https://www.facebook.com/video.php?v=2496619384022&set=vr.2496619384022&type=3&theater
+	this.setearReportableConURLMatcheada(4,'https://(www|es-la).facebook.com/video.php?');
+
+}
+
+
+
 // Sitios web comunes o no "especificados" se podrá reportar la URL actual.
 function WebGenerico(){
 	Sitio.call(this,'Sitio Web', 'globe', [{tipo:'Url', valor:null}] );
